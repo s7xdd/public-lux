@@ -28,8 +28,6 @@ const CustomizationSection = ({ hostName, slug }) => {
   const [isVisibleOptional, setIsVisibleOptional] = useState(false);
   const [isVisibleNumber, setIsVisibleNumber] = useState(false);
 
-
-
   const [helper] = useState(() => new MoveableHelper());
 
   const [isDragging, setIsDragging] = useState({
