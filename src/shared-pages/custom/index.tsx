@@ -159,8 +159,8 @@ const CustomizationSection = ({ hostName, slug }) => {
     }
   };
 
-  const handleVariationChange = async (event) => {
-    const variationId = parseInt(event.target.value);
+  const handleVariationChange = async (id) => {
+    const variationId = parseInt(id);
     setSelectedVariation(variationId);
 
     // Fetch variation data and update card image
@@ -747,7 +747,7 @@ const CustomizationSection = ({ hostName, slug }) => {
                   Choose Color
                 </label>
 
-                <select
+                {/* <select
                   id="variation-select"
                   value={selectedVariation || ""}
                   onChange={handleVariationChange}
@@ -761,12 +761,13 @@ const CustomizationSection = ({ hostName, slug }) => {
                       {option}
                     </option>
                   ))}
-                </select>
+                </select> */}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                   {allVariations &&
                     allVariations.map((variation) => (
-                      <div key={variation.id} className="bg-white p-2 rounded-lg shadow-lg hover:shadow-xl transition-shadow" >
+                      <div key={variation.id} className="bg-white p-2 rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                      onClick={() => handleVariationChange(variation.id)} >
                         <div className="relative w-full h-20 mb-1">
                           <Image
                             src={variation.images[0].src}
@@ -776,7 +777,7 @@ const CustomizationSection = ({ hostName, slug }) => {
                             className="rounded-md"
                           />
                         </div>
-                        <h3 className="text-center font-semibold text-[13px] text-gray-800">{variation.name}</h3>
+                        <h3 className="text-center font-semibold text-[13px] text-gray-800">{variation.name.split('-')[1]}</h3>
                       </div>
                     ))
                   }
