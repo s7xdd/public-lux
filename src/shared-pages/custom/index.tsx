@@ -37,12 +37,8 @@ const CustomizationSection = ({ hostName, slug }) => {
   const [product, setProduct] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [selectedVariation, setSelectedVariation] = useState<number | null>(null);
   const [variationData, setVariationData] = useState<any>(null);
   const [allVariations, setAllVariations] = useState<any>(null);
-  const [front, setFront] = useState(true);
-  const [name, setName] = useState("");
-  const [number, setNumber] = useState("");
   const [cardImg, setCardImg] = useState("");
   const [isDragging, setIsDragging] = useState({
     name: false,
@@ -74,17 +70,6 @@ const CustomizationSection = ({ hostName, slug }) => {
     topnumber: { left: 200, top: 320, height: 40, rotate: 0 },
     image: { left: 200, top: 150, height: 300, rotate: 0 },
   });
-
-  const colors = [
-    { code: "#d4af37", label: "Brushed Gold", price: "AED 25" },
-    { code: "#4a4a4a", label: "Matte Black", price: "AED 25" },
-    { code: "#00bcd4", label: "Ocean Blue", price: "AED 25" },
-    { code: "#95a5a6", label: "Brushed Silver", price: "AED 25" },
-    { code: "#3498db", label: "Sky Blue", price: "AED 25" },
-  ];
-
-
-
 
   // Check if the click is outside of the elements
   const handleClickOutside = (e: MouseEvent) => {
@@ -118,7 +103,7 @@ const CustomizationSection = ({ hostName, slug }) => {
         setCardImg(
           retVal.images[0]?.src || "/assets/img/detail-page/card-f.png"
         );
-        // console.log(product)
+        console.log(retVal)
       } catch (err) {
         console.error("Error fetching product:", err);
         setError("Failed to load product details.");
@@ -184,12 +169,12 @@ const CustomizationSection = ({ hostName, slug }) => {
       fetchAllVariationData(variationIds);
     }
 
-  }, [product]); 
+  }, [product]);
 
   const handleVariationChange = async (id) => {
-    
+
     const selectedVariation = allVariations.find(variation => variation.id === id);
-  
+
     if (selectedVariation) {
       setCardImg(selectedVariation?.images?.[0]?.src || "/assets/img/detail-page/card-f.png");
     } else {
@@ -197,7 +182,7 @@ const CustomizationSection = ({ hostName, slug }) => {
       setCardImg("/assets/img/detail-page/card-f.png");
     }
   };
-  
+
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -331,7 +316,9 @@ const CustomizationSection = ({ hostName, slug }) => {
           {/* Action area for displaying total price and action buttons */}
           <div className="lx-action-area z-10 flex justify-between items-center p-5 border-b bg-white absolute top-0 w-full">
             <span className="text-2xl font-bold text-primary rounded-lg">
-              AED 384.00
+              {product && (
+                <div>AED {product.price}</div>
+              )}
             </span>
             <div className="lx-actions flex gap-2">
               <div className="flex items-center space-x-2">
@@ -482,8 +469,6 @@ const CustomizationSection = ({ hostName, slug }) => {
                     alt="Card Front Preview"
                     className="w-full h-300 object-cover object-center shadow-lg border border-gray-300 rounded-lg"
                   />
-
-
                   {image && (
                     <div
                       ref={imageRef}
@@ -510,46 +495,51 @@ const CustomizationSection = ({ hostName, slug }) => {
                     </div>
                   )}
 
-                  {/* Draggable text on top of the image */}
-                  <div
-                    onClick={() => handleTextClick('name')}
-                    ref={targetRef1}
-                    style={{
-                      position: "absolute",
-                      left: elementValues.name.left,
-                      top: elementValues.name.top,
-                      width: elementValues.name.width,
-                      height: elementValues.name.height,
-                      transform: `rotate(${elementValues.name.rotate}deg)`,
-                      color: "white",
-                      padding: "8px",
-                      fontSize: "20px",
-                      borderRadius: "4px",
-                      cursor: "move",
-                    }}
-                  >
-                    {inputValues.name}
-                  </div>
+                  {!isCardFlipped && (
+                    <>
+                      {/* Draggable text on top of the image */}
+                      <div
+                        onClick={() => handleTextClick('name')}
+                        ref={targetRef1}
+                        style={{
+                          position: "absolute",
+                          left: elementValues.name.left,
+                          top: elementValues.name.top,
+                          width: elementValues.name.width,
+                          height: elementValues.name.height,
+                          transform: `rotate(${elementValues.name.rotate}deg)`,
+                          color: "white",
+                          padding: "8px",
+                          fontSize: "20px",
+                          borderRadius: "4px",
+                          cursor: "move",
+                        }}
+                      >
+                        {inputValues.name}
+                      </div>
 
-                  <div
-                    ref={targetRef2}
-                    onClick={() => handleTextClick('optional')}
-                    style={{
-                      position: "absolute",
-                      left: elementValues.optional.left,
-                      top: elementValues.optional.top,
-                      width: elementValues.optional.width,
-                      height: elementValues.optional.height,
-                      transform: `rotate(${elementValues.optional.rotate}deg)`,
-                      color: "white",
-                      padding: "8px",
-                      fontSize: "20px",
-                      borderRadius: "4px",
-                      cursor: "move",
-                    }}
-                  >
-                    {inputValues.optional}
-                  </div>
+                      <div
+                        ref={targetRef2}
+                        onClick={() => handleTextClick('optional')}
+                        style={{
+                          position: "absolute",
+                          left: elementValues.optional.left,
+                          top: elementValues.optional.top,
+                          width: elementValues.optional.width,
+                          height: elementValues.optional.height,
+                          transform: `rotate(${elementValues.optional.rotate}deg)`,
+                          color: "white",
+                          padding: "8px",
+                          fontSize: "20px",
+                          borderRadius: "4px",
+                          cursor: "move",
+                        }}
+                      >
+                        {inputValues.optional}
+                      </div>
+
+                    </>
+                  )}
 
                   <div
                     ref={targetRef3}
@@ -720,12 +710,12 @@ const CustomizationSection = ({ hostName, slug }) => {
                   ))}
                 </select> */}
 
-                <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2">
                   {allVariations ? (
                     allVariations.map((variation) => (
                       <div
                         key={variation.id}
-                        className="bg-white p-2 rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                        className="bg-white p-3 rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
                         onClick={() => handleVariationChange(variation.id)}
                       >
                         <div className="relative w-full h-20 mb-1">
