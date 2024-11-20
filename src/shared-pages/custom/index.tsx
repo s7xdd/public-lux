@@ -102,10 +102,11 @@ const CustomizationSection = ({ hostName, slug }) => {
           { apiEndpoint },
         );
         setProduct(retVal);
+        console.log(retVal)
         setCardFront(
           retVal.images[0]?.src || "/assets/img/detail-page/card-f.png"
         );
-        setCardBack(retVal.images[1]?.src || "/assets/img/detail-page/card-f.png")
+        setCardBack(retVal.images[1]?.src || "/assets/img/detail-page/card-b.png")
         console.log(retVal)
       } catch (err) {
         console.error("Error fetching product:", err);
@@ -448,249 +449,271 @@ const CustomizationSection = ({ hostName, slug }) => {
 
           {/* Card area for displaying the card */}
           <div className="h-full min-h-[500px] flex items-center justify-center flex-col relative">
-            <div className="flex flex-col md:flex-row items-center justify-center gap-8 mb-12">
+            <div id="captureContainer" className="flex flex-col md:flex-row items-center justify-center gap-8 mb-12 ">
               {loading ? (
                 <div>loading</div>
               ) : (
                 isCardFlipped ? (
-                  <div>hello</div>
-                ) : (
-                  <div id="captureContainer" className="relative">
-                  <Image
-                    src={cardFront}
-                    height={400}
-                    width={400}
-                    alt="Card Front Preview"
-                    className="w-full h-300 object-cover object-center shadow-lg border border-gray-300 rounded-lg"
-                  />
-                  {image && (
+                  <div className="relative">
+                    <Image
+                      src={cardBack}
+                      height={400}
+                      width={400}
+                      alt="Card Back Preview"
+                      className="w-full h-300 object-cover object-center shadow-lg border border-gray-300 rounded-lg"
+                    />
+
                     <div
-                      ref={imageRef}
+                      ref={targetRef3}
+                      onClick={() => handleTextClick('number')}
                       style={{
                         position: "absolute",
-                        left: elementValues.image.left,
-                        top: elementValues.image.top,
-                        width: elementValues.image.width,   // This will be dynamically set via scaling
-                        height: elementValues.image.height, // This will be dynamically set via scaling
-                        transform: `rotate(${elementValues.image.rotate}deg)`,
-                        transformOrigin: "center center", // Ensures rotation is centered
-                        overflow: "hidden", // Prevents image from overflowing outside the container
+                        left: 30,
+                        top: 200,
+                        width: elementValues.number.width,
+                        height: elementValues.number.height,
+                        transform: `rotate(${elementValues.number.rotate}deg)`,
+                        color: "white",
+                        padding: "8px",
+                        fontSize: "20px",
+                        borderRadius: "4px",
+                        cursor: "move",
                       }}
                     >
-                      <img
-                        src={image}
-                        alt="Uploaded Preview"
-                        style={{
-                          width: "100%", // The image will scale to the size of the container
-                          height: "100%", // The image will scale to the size of the container
-                          objectFit: "contain", // Or "cover", depending on how you want to fit the image
-                        }}
-                      />
+                      {inputValues.number}
                     </div>
-                  )}
-
-                 
-                      {/* Draggable text on top of the image */}
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <Image
+                      src={cardFront}
+                      height={400}
+                      width={400}
+                      alt="Card Front Preview"
+                      className="w-full h-300 object-cover object-center shadow-lg border border-gray-300 rounded-lg"
+                    />
+                    {image && (
                       <div
-                        onClick={() => handleTextClick('name')}
-                        ref={targetRef1}
+                        ref={imageRef}
                         style={{
                           position: "absolute",
-                          left: elementValues.name.left,
-                          top: elementValues.name.top,
-                          width: elementValues.name.width,
-                          height: elementValues.name.height,
-                          transform: `rotate(${elementValues.name.rotate}deg)`,
-                          color: "white",
-                          padding: "8px",
-                          fontSize: "20px",
-                          borderRadius: "4px",
-                          cursor: "move",
+                          left: elementValues.image.left,
+                          top: elementValues.image.top,
+                          width: elementValues.image.width,   // This will be dynamically set via scaling
+                          height: elementValues.image.height, // This will be dynamically set via scaling
+                          transform: `rotate(${elementValues.image.rotate}deg)`,
+                          transformOrigin: "center center", // Ensures rotation is centered
+                          overflow: "hidden", // Prevents image from overflowing outside the container
                         }}
                       >
-                        {inputValues.name}
+                        <img
+                          src={image}
+                          alt="Uploaded Preview"
+                          style={{
+                            width: "100%", // The image will scale to the size of the container
+                            height: "100%", // The image will scale to the size of the container
+                            objectFit: "contain", // Or "cover", depending on how you want to fit the image
+                          }}
+                        />
                       </div>
+                    )}
 
-                      <div
-                        ref={targetRef2}
-                        onClick={() => handleTextClick('optional')}
-                        style={{
-                          position: "absolute",
-                          left: elementValues.optional.left,
-                          top: elementValues.optional.top,
-                          width: elementValues.optional.width,
-                          height: elementValues.optional.height,
-                          transform: `rotate(${elementValues.optional.rotate}deg)`,
-                          color: "white",
-                          padding: "8px",
-                          fontSize: "20px",
-                          borderRadius: "4px",
-                          cursor: "move",
-                        }}
-                      >
-                        {inputValues.optional}
-                      </div>
 
-              
+                    {/* Draggable text on top of the image */}
+                    <div
+                      onClick={() => handleTextClick('name')}
+                      ref={targetRef1}
+                      style={{
+                        position: "absolute",
+                        left: elementValues.name.left,
+                        top: elementValues.name.top,
+                        width: elementValues.name.width,
+                        height: elementValues.name.height,
+                        transform: `rotate(${elementValues.name.rotate}deg)`,
+                        color: "white",
+                        padding: "8px",
+                        fontSize: "20px",
+                        borderRadius: "4px",
+                        cursor: "move",
+                      }}
+                    >
+                      {inputValues.name}
+                    </div>
 
-                  <div
-                    ref={targetRef3}
-                    onClick={() => handleTextClick('number')}
-                    style={{
-                      position: "absolute",
-                      left: elementValues.number.left,
-                      top: elementValues.number.top,
-                      width: elementValues.number.width,
-                      height: elementValues.number.height,
-                      transform: `rotate(${elementValues.number.rotate}deg)`,
-                      color: "white",
-                      padding: "8px",
-                      fontSize: "20px",
-                      borderRadius: "4px",
-                      cursor: "move",
-                    }}
-                  >
-                    {inputValues.number}
+                    <div
+                      ref={targetRef2}
+                      onClick={() => handleTextClick('optional')}
+                      style={{
+                        position: "absolute",
+                        left: elementValues.optional.left,
+                        top: elementValues.optional.top,
+                        width: elementValues.optional.width,
+                        height: elementValues.optional.height,
+                        transform: `rotate(${elementValues.optional.rotate}deg)`,
+                        color: "white",
+                        padding: "8px",
+                        fontSize: "20px",
+                        borderRadius: "4px",
+                        cursor: "move",
+                      }}
+                    >
+                      {inputValues.optional}
+                    </div>
+
+
+
+                    <div
+                      ref={targetRef3}
+                      onClick={() => handleTextClick('number')}
+                      style={{
+                        position: "absolute",
+                        left: elementValues.number.left,
+                        top: elementValues.number.top,
+                        width: elementValues.number.width,
+                        height: elementValues.number.height,
+                        transform: `rotate(${elementValues.number.rotate}deg)`,
+                        color: "white",
+                        padding: "8px",
+                        fontSize: "20px",
+                        borderRadius: "4px",
+                        cursor: "move",
+                      }}
+                    >
+                      {inputValues.number}
+                    </div>
+
+                    <div
+                      onClick={() => handleTextClick('topnumber')}
+                      ref={targetRef4}
+                      style={{
+                        position: "absolute",
+                        left: elementValues.topnumber.left,
+                        top: elementValues.topnumber.top,
+                        width: elementValues.topnumber.width,
+                        height: elementValues.topnumber.height,
+                        transform: `rotate(${elementValues.topnumber.rotate}deg)`,
+                        color: "white",
+                        padding: "8px",
+                        fontSize: "20px",
+                        borderRadius: "4px",
+                        cursor: "move",
+                      }}
+                    >
+                      {inputValues.topnumber}
+                    </div>
+
+
+                    {/* Moveable components to handle drag, scale, and rotate interactions for each item */}
+                    {image && (
+                      <Moveable
+                        target={imageRef.current}
+                        draggable={true}
+                        scalable={true}
+                        keepRatio={true}
+                        rotatable={true}
+                        onDrag={(e) => handleDrag(e, "image")}
+                        onScale={(e) => handleScale(e, "image")}
+                        onRotate={(e) => handleRotate(e, "image")}
+                      />
+                    )}
+
+                    {/* Conditionally render Moveable based on visibility */}
+                    {isVisibleName && (
+                      <Moveable
+                        target={targetRef1.current}
+                        draggable={true}
+                        scalable={true}
+                        keepRatio={true}
+                        rotatable={true}
+                        onDragStart={() => handleDragStart("name")}
+                        onDragEnd={() => handleDragEnd("name")}
+                        onDrag={(e) => handleDrag(e, "name")}
+                        onScale={(e) => handleScale(e, "name")}
+                        onRotate={(e) => handleRotate(e, "name")}
+                        visible={isDragging.name} // Only visible when it's being dragged
+                      />
+                    )}
+                    {isVisibleOptional && (
+
+                      <Moveable
+                        target={targetRef2.current}
+                        draggable={true}
+                        scalable={true}
+                        keepRatio={true}
+                        rotatable={true}
+                        onDragStart={() => handleDragStart("optional")}
+                        onDragEnd={() => handleDragEnd("optional")}
+                        onDrag={(e) => handleDrag(e, "optional")}
+                        onScale={(e) => handleScale(e, "optional")}
+                        onRotate={(e) => handleRotate(e, "optional")}
+                        visible={isDragging.optional}
+                      />
+                    )}
+                    {isVisibleNumber && (
+
+                      <Moveable
+                        target={targetRef3.current}
+                        draggable={true}
+                        scalable={true}
+                        keepRatio={true}
+                        rotatable={true}
+                        onDragStart={() => handleDragStart("number")}
+                        onDragEnd={() => handleDragEnd("number")}
+                        onDrag={(e) => handleDrag(e, "number")}
+                        onScale={(e) => handleScale(e, "number")}
+                        onRotate={(e) => handleRotate(e, "number")}
+                        visible={isDragging.number}
+                      />
+
+                    )}
+
+                    {isVisibleTopNumber && (
+                      <Moveable
+                        target={targetRef4.current}
+                        draggable={true}
+                        scalable={true}
+                        keepRatio={true}
+                        rotatable={true}
+                        onDragStart={() => handleDragStart("name")}
+                        onDragEnd={() => handleDragEnd("name")}
+                        onDrag={(e) => handleDrag(e, "name")}
+                        onScale={(e) => handleScale(e, "name")}
+                        onRotate={(e) => handleRotate(e, "name")}
+                        visible={isDragging.name} // Only visible when it's being dragged
+                      />
+                    )}
+
                   </div>
-
-                  <div
-                    onClick={() => handleTextClick('topnumber')}
-                    ref={targetRef4}
-                    style={{
-                      position: "absolute",
-                      left: elementValues.topnumber.left,
-                      top: elementValues.topnumber.top,
-                      width: elementValues.topnumber.width,
-                      height: elementValues.topnumber.height,
-                      transform: `rotate(${elementValues.topnumber.rotate}deg)`,
-                      color: "white",
-                      padding: "8px",
-                      fontSize: "20px",
-                      borderRadius: "4px",
-                      cursor: "move",
-                    }}
-                  >
-                    {inputValues.topnumber}
-                  </div>
-
-
-                  {/* Moveable components to handle drag, scale, and rotate interactions for each item */}
-                  {image && (
-                    <Moveable
-                      target={imageRef.current}
-                      draggable={true}
-                      scalable={true}
-                      keepRatio={true}
-                      rotatable={true}
-                      onDrag={(e) => handleDrag(e, "image")}
-                      onScale={(e) => handleScale(e, "image")}
-                      onRotate={(e) => handleRotate(e, "image")}
-                    />
-                  )}
-
-                  {/* Conditionally render Moveable based on visibility */}
-                  {isVisibleName && (
-                    <Moveable
-                      target={targetRef1.current}
-                      draggable={true}
-                      scalable={true}
-                      keepRatio={true}
-                      rotatable={true}
-                      onDragStart={() => handleDragStart("name")}
-                      onDragEnd={() => handleDragEnd("name")}
-                      onDrag={(e) => handleDrag(e, "name")}
-                      onScale={(e) => handleScale(e, "name")}
-                      onRotate={(e) => handleRotate(e, "name")}
-                      visible={isDragging.name} // Only visible when it's being dragged
-                    />
-                  )}
-                  {isVisibleOptional && (
-
-                    <Moveable
-                      target={targetRef2.current}
-                      draggable={true}
-                      scalable={true}
-                      keepRatio={true}
-                      rotatable={true}
-                      onDragStart={() => handleDragStart("optional")}
-                      onDragEnd={() => handleDragEnd("optional")}
-                      onDrag={(e) => handleDrag(e, "optional")}
-                      onScale={(e) => handleScale(e, "optional")}
-                      onRotate={(e) => handleRotate(e, "optional")}
-                      visible={isDragging.optional}
-                    />
-                  )}
-                  {isVisibleNumber && (
-
-                    <Moveable
-                      target={targetRef3.current}
-                      draggable={true}
-                      scalable={true}
-                      keepRatio={true}
-                      rotatable={true}
-                      onDragStart={() => handleDragStart("number")}
-                      onDragEnd={() => handleDragEnd("number")}
-                      onDrag={(e) => handleDrag(e, "number")}
-                      onScale={(e) => handleScale(e, "number")}
-                      onRotate={(e) => handleRotate(e, "number")}
-                      visible={isDragging.number}
-                    />
-
-                  )}
-
-                  {isVisibleTopNumber && (
-                    <Moveable
-                      target={targetRef4.current}
-                      draggable={true}
-                      scalable={true}
-                      keepRatio={true}
-                      rotatable={true}
-                      onDragStart={() => handleDragStart("name")}
-                      onDragEnd={() => handleDragEnd("name")}
-                      onDrag={(e) => handleDrag(e, "name")}
-                      onScale={(e) => handleScale(e, "name")}
-                      onRotate={(e) => handleRotate(e, "name")}
-                      visible={isDragging.name} // Only visible when it's being dragged
-                    />
-                  )}
-
-                </div>
-
-         
-            ) 
-               
-                
-
+                )
               )}
+            </div>
 
+            {/* Button to switch card front */}
+            <button
+              onClick={toggleCard}
+              className="bg-primary text-white border border-primary rounded-full py-[13px] px-[32px] font-regular uppercase hover:bg-[#f0dac6] hover:border-[#f0dac6] hover:text-[#343434] absolute bottom-8"
+            >
+              Switch front
+            </button>
           </div>
-
-          {/* Button to switch card front */}
-          <button
-            onClick={toggleCard}
-            className="bg-primary text-white border border-primary rounded-full py-[13px] px-[32px] font-regular uppercase hover:bg-[#f0dac6] hover:border-[#f0dac6] hover:text-[#343434] absolute bottom-8"
-          >
-            Switch front
-          </button>
         </div>
-      </div>
 
-      {/* Right Section */}
-      <div className="w-full md:w-1/3 bg-white p-6 shadow-lg rounded-lg overflow-y-auto">
-        <h1 className="text-2xl font-bold text-gray-800 mb-4">Custom Card</h1>
+        {/* Right Section */}
+        <div className="w-full md:w-1/3 bg-white p-6 shadow-lg rounded-lg overflow-y-auto">
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">Custom Card</h1>
 
-        {/* Large device customization options */}
-        <div className="hidden md:block">
-          <div>
-            <div className="mb-6">
-              <label
-                htmlFor="add-borders"
-                className="block pb-3 border-b border-gray-300 text-gray-800 font-semibold mb-2"
-              >
-                Choose Color
-              </label>
+          {/* Large device customization options */}
+          <div className="hidden md:block">
+            <div>
+              <div className="mb-6">
+                <label
+                  htmlFor="add-borders"
+                  className="block pb-3 border-b border-gray-300 text-gray-800 font-semibold mb-2"
+                >
+                  Choose Color
+                </label>
 
-              {/* <select
+                {/* <select
                   id="variation-select"
                   value={selectedVariation || ""}
                   onChange={handleVariationChange}
@@ -706,389 +729,389 @@ const CustomizationSection = ({ hostName, slug }) => {
                   ))}
                 </select> */}
 
-              <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2">
-                {allVariations ? (
-                  allVariations.map((variation) => (
-                    <div
-                      key={variation.id}
-                      className="bg-white p-3 rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-                      onClick={() => handleVariationChange(variation.id)}
-                    >
-                      <div className="relative w-full h-20 mb-1">
-                        <Image
-                          src={variation.images[0].src}
-                          alt={variation.name}
-                          layout="fill"
-                          objectFit="cover"
-                          className="rounded-md"
-                        />
+                <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2">
+                  {allVariations ? (
+                    allVariations.map((variation) => (
+                      <div
+                        key={variation.id}
+                        className="bg-white p-3 rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                        onClick={() => handleVariationChange(variation.id)}
+                      >
+                        <div className="relative w-full h-20 mb-1">
+                          <Image
+                            src={variation.images[0].src}
+                            alt={variation.name}
+                            layout="fill"
+                            objectFit="cover"
+                            className="rounded-md"
+                          />
+                        </div>
+                        <h3 className="text-center font-semibold text-[13px] text-gray-800">
+                          {variation.name.split('-')[1]}
+                        </h3>
                       </div>
-                      <h3 className="text-center font-semibold text-[13px] text-gray-800">
-                        {variation.name.split('-')[1]}
-                      </h3>
-                    </div>
-                  ))
-                ) : (
-                  // Skeleton loader when `allVariations` is not yet available
-                  Array.from({ length: 8 }).map((_, index) => (
-                    <div key={index} className="bg-white p-2 rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
-                      <div className="relative w-full h-20 mb-1">
-                        <LoadingSkeleton width="100%" height="100%" variant="rectangular" />
-                      </div>
-                      <LoadingSkeleton width="60%" height={20} className="mx-auto mt-2" />
-                    </div>
-                  ))
-                )}
-              </div>
-
-            </div>
-
-            {/* Input for Your Name */}
-            <div className="mb-6">
-              <label className="block text-gray-800 font-semibold mb-1">
-                Your Name
-              </label>
-              <input
-                type="text"
-                name="name"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AE9164] focus:border-[#AE9164] placeholder-gray-400"
-                placeholder="Your name"
-                value={inputValues.name}
-                onChange={handleInputChange}
-              />
-            </div>
-
-            {/* Input for Optional Text */}
-            <div className="mb-6">
-              <label className="block text-gray-800 font-semibold mb-1">
-                Optional Text
-              </label>
-              {/* <input
-                  type="text"
-                  
-                /> */}
-
-              <input
-                type="text"
-                name="optional"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AE9164] focus:border-[#AE9164] placeholder-gray-400"
-                placeholder="Optional text"
-                value={inputValues.optional}
-                onChange={handleInputChange}
-              />
-
-            </div>
-
-            {/* Input for Card Number (Optional) */}
-            <div className="mb-6">
-              <label className="block text-gray-800 font-semibold mb-1">
-                Card Number (Optional)
-              </label>
-              <input
-                type="text"
-                name="number"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AE9164] focus:border-[#AE9164] placeholder-gray-400"
-                placeholder="Enter card number"
-                value={inputValues.number}
-                onChange={handleInputChange}
-              />
-            </div>
-
-            {/* Card Number Placement (Front or Back) */}
-            <div className="mb-6">
-              <label className="block text-gray-800 font-semibold mb-4">
-                Card number placement
-              </label>
-              <div className="flex items-center mb-4">
-                <input
-                  type="radio"
-                  id="no-branding"
-                  name="remove-branding"
-                  value="no"
-                  className="mr-2 focus:ring-[#AE9164] text-[#b88c4f]"
-                  checked
-                />
-                <label htmlFor="no-branding" className="text-gray-800 m-0">
-                  No
-                </label>
-              </div>
-              <div className="flex items-center">
-                <input
-                  type="radio"
-                  id="yes-branding"
-                  name="remove-branding"
-                  value="yes"
-                  className="mr-2 focus:ring-[#AE9164] text-[#b88c4f]"
-                />
-                <label htmlFor="yes-branding" className="text-gray-800 m-0">
-                  Yes (+10)
-                </label>
-                <span className="ml-2 bg-black text-white text-sm font-bold px-2 py-1 rounded-full">
-                  $10.00
-                </span>
-              </div>
-            </div>
-
-            {/* Input for Text on Top of Card (Optional) */}
-            <div className="mb-6">
-              <label className="block text-gray-800 font-semibold mb-1">
-                Text on Top of Card (Optional)
-              </label>
-              <input
-                type="text"
-                name="topnumber"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AE9164] focus:border-[#AE9164] placeholder-gray-400"
-                placeholder="Enter card number"
-                value={inputValues.topnumber}
-                onChange={handleInputChange}
-              />
-            </div>
-
-            {/* Add Borders (Optional) */}
-            <div className="mb-6">
-              <label
-                htmlFor="add-borders"
-                className="block text-gray-800 font-semibold mb-4 pb-3 border-b border-gray-300"
-              >
-                Add Borders (Optional)
-              </label>
-              <div className="lx-colors grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-2 mt-4">
-                {[
-                  "brushed-black",
-                  "brushed-black",
-                  "brushed-black",
-                  "brushed-black",
-                ].map((logo, index) => (
-                  <div
-                    key={index}
-                    className="aspect-square bg-gray-100 rounded-md p-4 pt-0 transition duration-300 cursor-pointer logo-option border-transparent border-2 hover:border-[#AE9164]"
-                  >
-                    <Image
-                      src={`/assets/img/${index + 1}.png`}
-                      height={20}
-                      width={20}
-                      alt="Brushed Black Logo"
-                      className="w-full h-full object-contain rounded-md lx-card-logo"
-                    />
-                    <p className="text-center text-sm text-gray-600 truncate">
-                      Brushed Black
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Choose Logo */}
-            <div className="mb-6">
-              <label
-                htmlFor="choose-logo"
-                className="block text-gray-800 font-semibold mb-4 pb-3 border-b border-gray-300"
-              >
-                Choose Logo
-              </label>
-              <div className="lx-colors grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-2">
-
-                {/* Logo Options */}
-                <div
-                  className="aspect-square bg-gray-100 rounded-md p-4 pt-0 transition duration-300 cursor-pointer logo-option border-transparent border-2 hover:border-[#AE9164]"
-                  onClick={() => setCustomLogo(false)}>
-                  <Image
-                    src="/assets/img/no-logo.png"
-                    alt="Brushed Black Logo"
-                    height={20}
-                    width={20}
-                    className="w-full h-full object-contain rounded-md lx-card-logo"
-                  />
-                  <p className="text-center text-sm text-gray-600 truncate">
-                    None
-                  </p>
-                </div>
-
-                <div
-                  className="logo-option bg-gray-100 lx-card-logo cursor-pointer p-4 pt-0 rounded-lg flex-1 text-center transition duration-200 border-transparent border-2 hover:border-[#AE9164] relative"
-                  onClick={() => setCustomLogo(true)}
-                >
-                  <Image
-                    src="/assets/img/custom-logo.png"
-                    height={20}
-                    width={20}
-                    alt="Brushed Black Logo"
-                    className="w-full object-contain rounded-md lx-card-logo"
-                  />
-                  <p className="text-center w-min px-2 mx-auto py-1 bg-black rounded-full text-white text-xs font-semibold text-nowrap">
-                    AED 5
-                  </p>
-                  <p className="mt-4 text-center text-sm text-gray-600">
-                    Custom Logo
-                  </p>
-                </div>
-              </div>
-              {customLogo && (
-                <div>
-                  {/* File input */}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    style={{ marginBottom: "20px" }}
-                  />
-
-                  {/* Display image preview if available */}
-                  {image ? (
-                    <div>
-                      <h3>Selected Image:</h3>
-                      <Image
-                        src={image}
-                        height={350}
-                        width={350}
-                        alt="Preview"
-                        style={{
-                          maxWidth: "100%",
-                          maxHeight: "400px",
-                          objectFit: "contain",
-                          border: "1px solid #ddd",
-                          borderRadius: "8px",
-                          marginBottom: "20px",
-                        }}
-                      />
-                    </div>
+                    ))
                   ) : (
-                    <p>No image selected yet.</p>
+                    // Skeleton loader when `allVariations` is not yet available
+                    Array.from({ length: 8 }).map((_, index) => (
+                      <div key={index} className="bg-white p-2 rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+                        <div className="relative w-full h-20 mb-1">
+                          <LoadingSkeleton width="100%" height="100%" variant="rectangular" />
+                        </div>
+                        <LoadingSkeleton width="60%" height={20} className="mx-auto mt-2" />
+                      </div>
+                    ))
                   )}
                 </div>
 
-              )}
-            </div>
-
-            {/* Add to Cart Button */}
-            <button className="w-full bg-[#AE9164] py-3 rounded-full text-white text-lg font-bold hover:bg-[#9d7c47] transition duration-200 mt-4" onClick={handleSubmit}>
-              Add to Cart
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="block md:hidden">
-        <div id="stepper" className="w-full">
-          {/* Step content */}
-          <div
-            id="step-content"
-            className="p-4 border rounded-lg bg-gray-50 text-gray-700"
-          >
-            {/* Step 1 content */}
-            {currentStep === 1 && (
-              <div>
-                <label
-                  htmlFor="add-borders"
-                  className="block pb-3 border-b border-gray-300 text-gray-800 font-semibold mb-2"
-                >
-                  Choose Color
-                </label>
-                <div className="flex overflow-x-auto p-2 gap-5 mt-4 relative">
-                  {/* Color Options */}
-                  <div className="flex flex-col align-center justify-center rounded-md bg-[#d4af37] p-4 transition duration-300 hover:bg-[#c49c30] cursor-pointer relative">
-                    <div className="hidden absolute right-[-8px] top-[-10px] bg-[#bc8c54] rounded-full border-2 border-white p-[1px]">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        className="w-5 h-5 text-white"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    </div>
-                    <p className="text-center w-min px-3 mx-auto py-1 mb-2 bg-black rounded-full text-white text-xs font-semibold text-nowrap">
-                      AED 25
-                    </p>
-                    <p className="text-center text-gray-600 text-sm">
-                      Brushed Gold
-                    </p>
-                  </div>
-                  {/* Repeat other color options */}
-                </div>
               </div>
-            )}
 
-            {/* Step 2 content */}
-            {currentStep === 2 && (
-              <div className="step-content">
+              {/* Input for Your Name */}
+              <div className="mb-6">
                 <label className="block text-gray-800 font-semibold mb-1">
                   Your Name
                 </label>
                 <input
                   type="text"
+                  name="name"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AE9164] focus:border-[#AE9164] placeholder-gray-400"
-                  placeholder="Enter your name"
-                  required
+                  placeholder="Your name"
+                  value={inputValues.name}
+                  onChange={handleInputChange}
                 />
               </div>
-            )}
 
-            {/* Step 3 content */}
-            {currentStep === 3 && (
-              <div className="step-content">
+              {/* Input for Optional Text */}
+              <div className="mb-6">
                 <label className="block text-gray-800 font-semibold mb-1">
                   Optional Text
                 </label>
+                {/* <input
+                  type="text"
+                  
+                /> */}
+
                 <input
                   type="text"
+                  name="optional"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AE9164] focus:border-[#AE9164] placeholder-gray-400"
                   placeholder="Optional text"
+                  value={inputValues.optional}
+                  onChange={handleInputChange}
+                />
+
+              </div>
+
+              {/* Input for Card Number (Optional) */}
+              <div className="mb-6">
+                <label className="block text-gray-800 font-semibold mb-1">
+                  Card Number (Optional)
+                </label>
+                <input
+                  type="text"
+                  name="number"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AE9164] focus:border-[#AE9164] placeholder-gray-400"
+                  placeholder="Enter card number"
+                  value={inputValues.number}
+                  onChange={handleInputChange}
                 />
               </div>
-            )}
 
-            {/* Step 4 content */}
-            {currentStep === 4 && (
-              <div className="step-content">
-                <label className="block text-gray-800 font-semibold mb-4 pb-3 border-b border-gray-300">
+              {/* Card Number Placement (Front or Back) */}
+              <div className="mb-6">
+                <label className="block text-gray-800 font-semibold mb-4">
+                  Card number placement
+                </label>
+                <div className="flex items-center mb-4">
+                  <input
+                    type="radio"
+                    id="no-branding"
+                    name="remove-branding"
+                    value="no"
+                    className="mr-2 focus:ring-[#AE9164] text-[#b88c4f]"
+                    checked
+                  />
+                  <label htmlFor="no-branding" className="text-gray-800 m-0">
+                    No
+                  </label>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="radio"
+                    id="yes-branding"
+                    name="remove-branding"
+                    value="yes"
+                    className="mr-2 focus:ring-[#AE9164] text-[#b88c4f]"
+                  />
+                  <label htmlFor="yes-branding" className="text-gray-800 m-0">
+                    Yes (+10)
+                  </label>
+                  <span className="ml-2 bg-black text-white text-sm font-bold px-2 py-1 rounded-full">
+                    $10.00
+                  </span>
+                </div>
+              </div>
+
+              {/* Input for Text on Top of Card (Optional) */}
+              <div className="mb-6">
+                <label className="block text-gray-800 font-semibold mb-1">
+                  Text on Top of Card (Optional)
+                </label>
+                <input
+                  type="text"
+                  name="topnumber"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AE9164] focus:border-[#AE9164] placeholder-gray-400"
+                  placeholder="Enter card number"
+                  value={inputValues.topnumber}
+                  onChange={handleInputChange}
+                />
+              </div>
+
+              {/* Add Borders (Optional) */}
+              <div className="mb-6">
+                <label
+                  htmlFor="add-borders"
+                  className="block text-gray-800 font-semibold mb-4 pb-3 border-b border-gray-300"
+                >
+                  Add Borders (Optional)
+                </label>
+                <div className="lx-colors grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-2 mt-4">
+                  {[
+                    "brushed-black",
+                    "brushed-black",
+                    "brushed-black",
+                    "brushed-black",
+                  ].map((logo, index) => (
+                    <div
+                      key={index}
+                      className="aspect-square bg-gray-100 rounded-md p-4 pt-0 transition duration-300 cursor-pointer logo-option border-transparent border-2 hover:border-[#AE9164]"
+                    >
+                      <Image
+                        src={`/assets/img/${index + 1}.png`}
+                        height={20}
+                        width={20}
+                        alt="Brushed Black Logo"
+                        className="w-full h-full object-contain rounded-md lx-card-logo"
+                      />
+                      <p className="text-center text-sm text-gray-600 truncate">
+                        Brushed Black
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Choose Logo */}
+              <div className="mb-6">
+                <label
+                  htmlFor="choose-logo"
+                  className="block text-gray-800 font-semibold mb-4 pb-3 border-b border-gray-300"
+                >
                   Choose Logo
                 </label>
-                <div className="lx-colors flex overflow-x-auto overflow-y-hidden gap-2">
+                <div className="lx-colors grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-2">
+
                   {/* Logo Options */}
-                  <div className="logo-option bg-gray-100 lx-card-logo cursor-pointer p-4 pt-0 rounded-lg flex-1 text-center transition duration-200 border-transparent border-2 hover:border-[#AE9164]">
+                  <div
+                    className="aspect-square bg-gray-100 rounded-md p-4 pt-0 transition duration-300 cursor-pointer logo-option border-transparent border-2 hover:border-[#AE9164]"
+                    onClick={() => setCustomLogo(false)}>
                     <Image
                       src="/assets/img/no-logo.png"
+                      alt="Brushed Black Logo"
                       height={20}
                       width={20}
-                      alt="Brushed Black Logo"
-                      className="w-full h-full min-w-[90px] object-contain rounded-md lx-card-logo"
+                      className="w-full h-full object-contain rounded-md lx-card-logo"
                     />
                     <p className="text-center text-sm text-gray-600 truncate">
                       None
                     </p>
                   </div>
-                  {/* Repeat logo options */}
-                </div>
-              </div>
-            )}
-          </div>
 
-          {/* Navigation buttons */}
-          <div className="mt-4 flex justify-between">
-            <button
-              onClick={handlePrev}
-              className="lx-add-to-cart flex items-center bg-gray-300 text-nowrap text-black py-2 px-4 rounded hover:bg-gray-400 transition duration-200"
-              disabled={currentStep === 1}
+                  <div
+                    className="logo-option bg-gray-100 lx-card-logo cursor-pointer p-4 pt-0 rounded-lg flex-1 text-center transition duration-200 border-transparent border-2 hover:border-[#AE9164] relative"
+                    onClick={() => setCustomLogo(true)}
+                  >
+                    <Image
+                      src="/assets/img/custom-logo.png"
+                      height={20}
+                      width={20}
+                      alt="Brushed Black Logo"
+                      className="w-full object-contain rounded-md lx-card-logo"
+                    />
+                    <p className="text-center w-min px-2 mx-auto py-1 bg-black rounded-full text-white text-xs font-semibold text-nowrap">
+                      AED 5
+                    </p>
+                    <p className="mt-4 text-center text-sm text-gray-600">
+                      Custom Logo
+                    </p>
+                  </div>
+                </div>
+                {customLogo && (
+                  <div>
+                    {/* File input */}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      style={{ marginBottom: "20px" }}
+                    />
+
+                    {/* Display image preview if available */}
+                    {image ? (
+                      <div>
+                        <h3>Selected Image:</h3>
+                        <Image
+                          src={image}
+                          height={350}
+                          width={350}
+                          alt="Preview"
+                          style={{
+                            maxWidth: "100%",
+                            maxHeight: "400px",
+                            objectFit: "contain",
+                            border: "1px solid #ddd",
+                            borderRadius: "8px",
+                            marginBottom: "20px",
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <p>No image selected yet.</p>
+                    )}
+                  </div>
+
+                )}
+              </div>
+
+              {/* Add to Cart Button */}
+              <button className="w-full bg-[#AE9164] py-3 rounded-full text-white text-lg font-bold hover:bg-[#9d7c47] transition duration-200 mt-4" onClick={handleSubmit}>
+                Add to Cart
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="block md:hidden">
+          <div id="stepper" className="w-full">
+            {/* Step content */}
+            <div
+              id="step-content"
+              className="p-4 border rounded-lg bg-gray-50 text-gray-700"
             >
-              Prev
-            </button>
-            <button
-              onClick={handleNext}
-              className="lx-add-to-cart flex items-center bg-gray-300 text-black text-nowrap py-2 px-4 rounded hover:bg-gray-400 transition duration-200"
-            >
-              {currentStep === 4 ? "Finish" : "Next"}
-            </button>
+              {/* Step 1 content */}
+              {currentStep === 1 && (
+                <div>
+                  <label
+                    htmlFor="add-borders"
+                    className="block pb-3 border-b border-gray-300 text-gray-800 font-semibold mb-2"
+                  >
+                    Choose Color
+                  </label>
+                  <div className="flex overflow-x-auto p-2 gap-5 mt-4 relative">
+                    {/* Color Options */}
+                    <div className="flex flex-col align-center justify-center rounded-md bg-[#d4af37] p-4 transition duration-300 hover:bg-[#c49c30] cursor-pointer relative">
+                      <div className="hidden absolute right-[-8px] top-[-10px] bg-[#bc8c54] rounded-full border-2 border-white p-[1px]">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          className="w-5 h-5 text-white"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      </div>
+                      <p className="text-center w-min px-3 mx-auto py-1 mb-2 bg-black rounded-full text-white text-xs font-semibold text-nowrap">
+                        AED 25
+                      </p>
+                      <p className="text-center text-gray-600 text-sm">
+                        Brushed Gold
+                      </p>
+                    </div>
+                    {/* Repeat other color options */}
+                  </div>
+                </div>
+              )}
+
+              {/* Step 2 content */}
+              {currentStep === 2 && (
+                <div className="step-content">
+                  <label className="block text-gray-800 font-semibold mb-1">
+                    Your Name
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AE9164] focus:border-[#AE9164] placeholder-gray-400"
+                    placeholder="Enter your name"
+                    required
+                  />
+                </div>
+              )}
+
+              {/* Step 3 content */}
+              {currentStep === 3 && (
+                <div className="step-content">
+                  <label className="block text-gray-800 font-semibold mb-1">
+                    Optional Text
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AE9164] focus:border-[#AE9164] placeholder-gray-400"
+                    placeholder="Optional text"
+                  />
+                </div>
+              )}
+
+              {/* Step 4 content */}
+              {currentStep === 4 && (
+                <div className="step-content">
+                  <label className="block text-gray-800 font-semibold mb-4 pb-3 border-b border-gray-300">
+                    Choose Logo
+                  </label>
+                  <div className="lx-colors flex overflow-x-auto overflow-y-hidden gap-2">
+                    {/* Logo Options */}
+                    <div className="logo-option bg-gray-100 lx-card-logo cursor-pointer p-4 pt-0 rounded-lg flex-1 text-center transition duration-200 border-transparent border-2 hover:border-[#AE9164]">
+                      <Image
+                        src="/assets/img/no-logo.png"
+                        height={20}
+                        width={20}
+                        alt="Brushed Black Logo"
+                        className="w-full h-full min-w-[90px] object-contain rounded-md lx-card-logo"
+                      />
+                      <p className="text-center text-sm text-gray-600 truncate">
+                        None
+                      </p>
+                    </div>
+                    {/* Repeat logo options */}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Navigation buttons */}
+            <div className="mt-4 flex justify-between">
+              <button
+                onClick={handlePrev}
+                className="lx-add-to-cart flex items-center bg-gray-300 text-nowrap text-black py-2 px-4 rounded hover:bg-gray-400 transition duration-200"
+                disabled={currentStep === 1}
+              >
+                Prev
+              </button>
+              <button
+                onClick={handleNext}
+                className="lx-add-to-cart flex items-center bg-gray-300 text-black text-nowrap py-2 px-4 rounded hover:bg-gray-400 transition duration-200"
+              >
+                {currentStep === 4 ? "Finish" : "Next"}
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </section >
   );
 };
