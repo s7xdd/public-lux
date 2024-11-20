@@ -1,0 +1,50 @@
+/* globals.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Philosopher:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Red+Hat+Display:ital,wght@0,300..900;1,300..900&display=swap');
+
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import Flowbite styles */
+@import "flowbite";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: #fff;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+
+/* Custom Buttons */
+
+/* Custom Buttons */
+
+/* Button 1 - Primary */
+.btn-primary {
+  @apply bg-primary text-white border border-primary rounded-full uppercase font-normal;
+}
+.btn-primary:hover {
+  @apply bg-secondary border-secondary text-hoverText;
+}
+
+/* Button 2 - Transparent */
+.btn-transparent {
+  @apply bg-transparent border border-hoverText text-hoverText rounded-full uppercase font-normal;
+}
+.btn-transparent:hover {
+  @apply bg-secondary border-secondary text-hoverText;
+}
