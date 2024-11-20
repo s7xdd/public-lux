@@ -113,7 +113,6 @@ const CustomizationSection = ({ hostName, slug }) => {
         const apiEndpoint = apiEndpoints.products.productDetails(slug);
         const retVal = await FetchAPIData.fetchAPIData(
           { apiEndpoint },
-          hostName
         );
         setProduct(retVal);
         setCardImg(
@@ -138,41 +137,20 @@ const CustomizationSection = ({ hostName, slug }) => {
     };
   }, []);
 
-
-
-
-
-
-
-  // Fetch data for the selected variation
-  const fetchVariationData = async (variationId) => {
-    try {
-      const apiEndpoint = apiEndpoints.products.productDetails(variationId);
-      const variationDetails = await FetchAPIData.fetchAPIData(
-        { apiEndpoint },
-        hostName
-      );
-      setVariationData(variationDetails);
-      return variationDetails; // Return the fetched data
-    } catch (err) {
-      console.error("Error fetching variation data:", err);
-      setError("Failed to load variation details.");
-    }
-  };
-
-  const handleVariationChange = async (id) => {
-    const variationId = parseInt(id);
-    setSelectedVariation(variationId);
-
-    // Fetch variation data and update card image
-    const variationDetails = await fetchVariationData(variationId);
-    if (variationDetails) {
-      setCardImg(
-        variationDetails.images?.[0]?.src ||
-        "/assets/img/detail-page/card-f.png"
-      );
-    }
-  };
+  // // Fetch data for the selected variation
+  // const fetchVariationData = async (variationId) => {
+  //   try {
+  //     const apiEndpoint = apiEndpoints.products.productDetails(variationId);
+  //     const variationDetails = await FetchAPIData.fetchAPIData(
+  //       { apiEndpoint },
+  //     );
+  //     setVariationData(variationDetails);
+  //     return variationDetails; // Return the fetched data
+  //   } catch (err) {
+  //     console.error("Error fetching variation data:", err);
+  //     setError("Failed to load variation details.");
+  //   }
+  // };
 
   // Get attribute options from Product data and map them to variations
   const attributeOptions = product?.attributes[0]?.options || [];
@@ -184,7 +162,7 @@ const CustomizationSection = ({ hostName, slug }) => {
         // Create an array of promises to fetch data for all variation IDs
         const variationPromises = variationIds.map(async (variationId) => {
           const apiEndpoint = apiEndpoints.products.productDetails(variationId);
-          const variationDetails = await FetchAPIData.fetchAPIData({ apiEndpoint }, hostName);
+          const variationDetails = await FetchAPIData.fetchAPIData({ apiEndpoint });
           return variationDetails; // Return the variation details for each ID
         });
 
@@ -206,7 +184,20 @@ const CustomizationSection = ({ hostName, slug }) => {
       fetchAllVariationData(variationIds);
     }
 
-  }, [variationIds]); // Add variationIds as a dependency
+  }, [product]); 
+
+  const handleVariationChange = async (id) => {
+    
+    const selectedVariation = allVariations.find(variation => variation.id === id);
+  
+    if (selectedVariation) {
+      setCardImg(selectedVariation?.images?.[0]?.src || "/assets/img/detail-page/card-f.png");
+    } else {
+      // If no variation found, fall back to a default image
+      setCardImg("/assets/img/detail-page/card-f.png");
+    }
+  };
+  
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
