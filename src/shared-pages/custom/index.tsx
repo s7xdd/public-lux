@@ -13,6 +13,7 @@ import {
   Scalable,
 } from "react-moveable";
 import MoveableHelper from "moveable-helper";
+import html2canvas from "html2canvas";
 
 const Moveable = makeMoveable<DraggableProps & ScalableProps & RotatableProps>([
   Draggable,
@@ -295,6 +296,22 @@ const CustomizationSection = ({ hostName, slug }) => {
     );
   };
 
+  const handleSubmit = () => {
+    const containerRef = document.getElementById("captureContainer");
+
+    // Use html2canvas to capture the container as an image
+    html2canvas(containerRef).then((canvas) => {
+      // Convert the canvas to a data URL (base64 image)
+      const dataUrl = canvas.toDataURL("image/png");
+
+      // Create a temporary link to download the image
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = "final-image.png";
+      link.click();
+    });
+  };
+
   return (
     <section>
       <div className="flex flex-col md:flex-row h-100 md:h-[calc(100vh-100px)]">
@@ -446,7 +463,7 @@ const CustomizationSection = ({ hostName, slug }) => {
                 <div>loading</div>
               ) : (
 
-                <div className="relative">
+                <div id="captureContainer" className="relative">
                   <Image
                     src={cardImg}
                     height={400}
@@ -1002,7 +1019,7 @@ const CustomizationSection = ({ hostName, slug }) => {
               </div>
 
               {/* Add to Cart Button */}
-              <button className="w-full bg-[#AE9164] py-3 rounded-full text-white text-lg font-bold hover:bg-[#9d7c47] transition duration-200 mt-4">
+              <button className="w-full bg-[#AE9164] py-3 rounded-full text-white text-lg font-bold hover:bg-[#9d7c47] transition duration-200 mt-4" onClick={handleSubmit}>
                 Add to Cart
               </button>
             </div>
