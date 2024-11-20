@@ -14,6 +14,7 @@ import {
 } from "react-moveable";
 import MoveableHelper from "moveable-helper";
 import html2canvas from "html2canvas";
+import LoadingSkeleton from "@/components/common/card-skeleton";
 
 const Moveable = makeMoveable<DraggableProps & ScalableProps & RotatableProps>([
   Draggable,
@@ -685,41 +686,6 @@ const CustomizationSection = ({ hostName, slug }) => {
 
               )}
 
-
-
-              {/* <div className="max-w-lg relative">
-                  <Image
-                    src={backImageSrc}
-                    height={300}
-                    width={300}
-                    alt="Card Back Preview"
-                    className="w-full h-300 object-cover object-center shadow-lg border border-gray-300 rounded-lg"
-                  />
-                  <div className="lx-card-info-b absolute bottom-[6px] left-[25px]">
-                    {front === "back" && (
-                      <>
-                        <div className="lx-card-name mb-2">
-                          <label htmlFor="card-name">Card Name</label>
-                          <p
-                            id="cardName-b"
-                            className="uppercase text-lg sm:text-xl"
-                          >
-                            {name}
-                          </p>
-                        </div>
-                        <div className="lx-card-number">
-                          <label htmlFor="card-number">Card Number</label>
-                          <p
-                            id="cardNumber-b"
-                            className="uppercase text-lg sm:text-xl"
-                          >
-                            {number}
-                          </p>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div> */}
             </div>
 
             {/* Button to switch card front */}
@@ -763,11 +729,14 @@ const CustomizationSection = ({ hostName, slug }) => {
                   ))}
                 </select> */}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {allVariations &&
+                <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {allVariations ? (
                     allVariations.map((variation) => (
-                      <div key={variation.id} className="bg-white p-2 rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-                      onClick={() => handleVariationChange(variation.id)} >
+                      <div
+                        key={variation.id}
+                        className="bg-white p-2 rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                        onClick={() => handleVariationChange(variation.id)}
+                      >
                         <div className="relative w-full h-20 mb-1">
                           <Image
                             src={variation.images[0].src}
@@ -777,98 +746,24 @@ const CustomizationSection = ({ hostName, slug }) => {
                             className="rounded-md"
                           />
                         </div>
-                        <h3 className="text-center font-semibold text-[13px] text-gray-800">{variation.name.split('-')[1]}</h3>
+                        <h3 className="text-center font-semibold text-[13px] text-gray-800">
+                          {variation.name.split('-')[1]}
+                        </h3>
                       </div>
                     ))
-                  }
+                  ) : (
+                    // Skeleton loader when `allVariations` is not yet available
+                    Array.from({ length: 8 }).map((_, index) => (
+                      <div key={index} className="bg-white p-2 rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+                        <div className="relative w-full h-20 mb-1">
+                          <LoadingSkeleton width="100%" height="100%" variant="rectangular" />
+                        </div>
+                        <LoadingSkeleton width="60%" height={20} className="mx-auto mt-2" />
+                      </div>
+                    ))
+                  )}
                 </div>
 
-
-                {/* <div className=" grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-5 mt-4 relative h-[100%]">
-
-
-
-
-                  {attributeOptions.map((option, index) => (
-                    <div
-                      key={index}
-                      className="flex flex-col items-center justify-center rounded-md p-4 transition duration-300 hover:bg-opacity-80 cursor-pointer relative"
-                    // onClick={() => setSelectedColor()}
-                    >
-                      <div
-                        className={`absolute right-[-8px] top-[-10px] bg-[#bc8c54] rounded-full border-2 border-white p-[1px]`}
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          className="w-5 h-5 text-white"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                      </div>
-                      <p className="text-center w-min px-3 mx-auto py-1 mb-2 bg-black rounded-full text-white text-xs font-semibold text-nowrap">
-                        1
-                      </p>
-                      <p
-                      // className={`text-center text-sm ${
-                      //   color.code === "#d4af37" ||
-                      //   color.code === "#00bcd4" ||
-                      //   color.code === "#3498db"
-                      //     ? "text-gray-600"
-                      //     : "text-gray-300"
-                      // }`}
-                      >
-                        {option}
-                      </p>
-                    </div>
-                  ))}
-                </div> */}
-
-                {/* <div className=" grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-5 mt-4 relative h-[100%]">
-                  
-                  {variationData.map((variation, index) => (
-                    <div
-                      key={index}
-                      className="flex flex-col items-center justify-center rounded-md p-4 transition duration-300 hover:bg-opacity-80 cursor-pointer relative"
-                      // style={{ backgroundColor: color.code }}
-                      // onClick={() => setSelectedColor(color.code)}
-                    >
-                      <div
-                        className={`absolute right-[-8px] top-[-10px] bg-[#bc8c54] rounded-full border-2 border-white p-[1px]`}
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          className="w-5 h-5 text-white"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                      </div>
-                      <p className="text-center w-min px-3 mx-auto py-1 mb-2 bg-black rounded-full text-white text-xs font-semibold text-nowrap">
-                        {variation.price}
-                      </p>
-                      <p
-                        className={`text-center text-sm`}
-                      >
-                        {variationData.name}
-                      </p>
-                    </div>
-                  ))}
-                </div> */}
               </div>
 
               {/* Input for Your Name */}
