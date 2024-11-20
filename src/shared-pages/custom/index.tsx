@@ -840,7 +840,7 @@ const CustomizationSection = ({ hostName, slug }) => {
                 </label>
                 <input
                   type="text"
-                  name="number"
+                  name="topnumber"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AE9164] focus:border-[#AE9164] placeholder-gray-400"
                   placeholder="Enter card number"
                   value={inputValues.topnumber}
