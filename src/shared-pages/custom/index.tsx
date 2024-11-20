@@ -28,31 +28,87 @@ const CustomizationSection = ({ hostName, slug }) => {
   const [isVisibleName, setIsVisibleName] = useState(false);
   const [isVisibleOptional, setIsVisibleOptional] = useState(false);
   const [isVisibleNumber, setIsVisibleNumber] = useState(false);
-
-  const [helper] = useState(() => new MoveableHelper());
-
+  const [isCardFlipped, setIsCardFlipped] = useState(false);
+  const [customLogo, setCustomLogo] = useState(false);
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [product, setProduct] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [selectedVariation, setSelectedVariation] = useState<number | null>(null);
+  const [variationData, setVariationData] = useState<any>(null);
+  const [front, setFront] = useState(true);
+  const [name, setName] = useState("");
+  const [number, setNumber] = useState("");
+  const [cardImg, setCardImg] = useState("");
   const [isDragging, setIsDragging] = useState({
     name: false,
     optional: false,
     number: false,
   });
+  const [inputValues, setInputValues] = useState({
+    name: "",
+    optional: "",
+    number: "",
+  });
 
+  // Refs for each draggable item
+  const targetRef1 = useRef<HTMLDivElement>(null);
+  const targetRef2 = useRef<HTMLDivElement>(null);
+  const targetRef3 = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLDivElement>(null);
+
+  // State for tracking position, scale, and rotation of each element
+  const [elementValues, setElementValues] = useState({
+    name: { left: 40, top: 300, height: 40, rotate: 0 },
+    optional: { left: 40, top: 330, height: 40, rotate: 0 },
+    number: { left: 150, top: 250, height: 40, rotate: 0 },
+    image: { left: 200, top: 150, height: 300, rotate: 0 },
+  });
+
+  const [helper] = useState(() => new MoveableHelper());
+
+
+  // Check if the click is outside of the elements
   const handleClickOutside = (e: MouseEvent) => {
-    // Check if the click is outside of the first element
     if (targetRef1.current && !targetRef1.current.contains(e.target as Node)) {
-      setIsVisibleName(false); // Close the first component if clicked outside
+      setIsVisibleName(false);
     }
-
-    // Check if the click is outside of the second element
     if (targetRef2.current && !targetRef2.current.contains(e.target as Node)) {
-      setIsVisibleOptional(false); // Close the second component if clicked outside
+      setIsVisibleOptional(false);
     }
-
-    // Check if the click is outside of the third element
     if (targetRef3.current && !targetRef3.current.contains(e.target as Node)) {
-      setIsVisibleNumber(false); // Close the third component if clicked outside
+      setIsVisibleNumber(false);
     }
   };
+
+  useEffect(() => {
+    if (!slug) {
+      console.error("Product slug is undefined");
+      return;
+    }
+    const fetchProduct = async () => {
+      try {
+        const apiEndpoint = apiEndpoints.products.productDetails(slug);
+        const retVal = await FetchAPIData.fetchAPIData(
+          { apiEndpoint },
+          hostName
+        );
+        setProduct(retVal);
+        setCardImg(
+          retVal.images[0]?.src || "/assets/img/detail-page/card-f.png"
+        );
+        // console.log(retVal);
+      } catch (err) {
+        console.error("Error fetching product:", err);
+        setError("Failed to load product details.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [slug, hostName]);
 
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside);
@@ -60,6 +116,40 @@ const CustomizationSection = ({ hostName, slug }) => {
       document.removeEventListener('mousedown', handleClickOutside); // Cleanup on component unmount
     };
   }, []);
+
+  // Fetch data for the selected variation
+  const fetchVariationData = async (variationId) => {
+    try {
+      const apiEndpoint = apiEndpoints.products.productDetails(variationId);
+      const variationDetails = await FetchAPIData.fetchAPIData(
+        { apiEndpoint },
+        hostName
+      );
+      setVariationData(variationDetails);
+      return variationDetails; // Return the fetched data
+    } catch (err) {
+      console.error("Error fetching variation data:", err);
+      setError("Failed to load variation details.");
+    }
+  };
+
+  const handleVariationChange = async (event) => {
+    const variationId = parseInt(event.target.value);
+    setSelectedVariation(variationId);
+
+    // Fetch variation data and update card image
+    const variationDetails = await fetchVariationData(variationId);
+    if (variationDetails) {
+      setCardImg(
+        variationDetails.images?.[0]?.src ||
+        "/assets/img/detail-page/card-f.png"
+      );
+    }
+  };
+
+  // Get attribute options from Product data and map them to variations
+  const attributeOptions = product?.attributes[0]?.options || [];
+  const variationIds = product?.variations || [];
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -70,44 +160,6 @@ const CustomizationSection = ({ hostName, slug }) => {
       setImageName(file.name); // Optionally store the image name
     }
   };
-
-  // State for input values
-  const [inputValues, setInputValues] = useState({
-    name: "",
-    optional: "",
-    number: "",
-  });
-
-  // State for tracking position, scale, and rotation of each element
-  const [elementValues, setElementValues] = useState({
-    name: { left: 40, top: 300, height: 40, rotate: 0 },
-    optional: { left: 40, top: 330, height: 40, rotate: 0 },
-    number: { left: 150, top: 250, height: 40, rotate: 0 },
-    image: { left: 200, top: 150, height: 300, rotate: 0 },
-  });
-
-  // Refs for each draggable item
-  const targetRef1 = useRef<HTMLDivElement>(null);
-  const targetRef2 = useRef<HTMLDivElement>(null);
-  const targetRef3 = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLDivElement>(null);
-
-  const handleTextClick = (target) => {
-    switch (target) {
-      case 'name':
-        setIsVisibleName((prev) => !prev);
-        break;
-      case 'optional':
-        setIsVisibleOptional((prev) => !prev);
-        break;
-      case 'number':
-        setIsVisibleNumber((prev) => !prev);
-        break;
-      default:
-        break;
-    }
-  };
-
 
   // Update input values
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -162,24 +214,6 @@ const CustomizationSection = ({ hostName, slug }) => {
     }));
   };
 
-
-
-  const [isCardFlipped, setIsCardFlipped] = useState(false);
-  const [customLogo, setCustomLogo] = useState(false);
-  const [selectedColor, setSelectedColor] = useState(null);
-  const [currentStep, setCurrentStep] = useState(1);
-  const [product, setProduct] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [selectedVariation, setSelectedVariation] = useState<number | null>(
-    null
-  );
-  const [variationData, setVariationData] = useState<any>(null);
-  const [front, setFront] = useState(true);
-  const [name, setName] = useState("");
-  const [number, setNumber] = useState("");
-  const [cardImg, setCardImg] = useState("");
-
   const colors = [
     { code: "#d4af37", label: "Brushed Gold", price: "AED 25" },
     { code: "#4a4a4a", label: "Matte Black", price: "AED 25" },
@@ -187,87 +221,6 @@ const CustomizationSection = ({ hostName, slug }) => {
     { code: "#95a5a6", label: "Brushed Silver", price: "AED 25" },
     { code: "#3498db", label: "Sky Blue", price: "AED 25" },
   ];
-
-  useEffect(() => {
-    if (!slug) {
-      console.error("Product slug is undefined");
-      return;
-    }
-
-    const fetchProduct = async () => {
-      try {
-        const apiEndpoint = apiEndpoints.products.productDetails(slug);
-        const retVal = await FetchAPIData.fetchAPIData(
-          { apiEndpoint },
-          hostName
-        );
-        setProduct(retVal);
-        setCardImg(
-          retVal.images[0]?.src || "/assets/img/detail-page/card-f.png"
-        );
-        // console.log(retVal);
-      } catch (err) {
-        console.error("Error fetching product:", err);
-        setError("Failed to load product details.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProduct();
-  }, [slug, hostName]);
-
-  // Fetch data for the selected variation
-  const fetchVariationData = async (variationId) => {
-    try {
-      const apiEndpoint = apiEndpoints.products.productDetails(variationId);
-      const variationDetails = await FetchAPIData.fetchAPIData(
-        { apiEndpoint },
-        hostName
-      );
-      setVariationData(variationDetails);
-      return variationDetails; // Return the fetched data
-    } catch (err) {
-      console.error("Error fetching variation data:", err);
-      setError("Failed to load variation details.");
-    }
-  };
-
-
-  const handleVariationChange = async (event) => {
-    const variationId = parseInt(event.target.value);
-    setSelectedVariation(variationId);
-
-    // Fetch variation data and update card image
-    const variationDetails = await fetchVariationData(variationId);
-    if (variationDetails) {
-      setCardImg(
-        variationDetails.images?.[0]?.src ||
-        "/assets/img/detail-page/card-f.png"
-      );
-    }
-  };
-
-
-
-  // Remove all non-numeric characters and add space
-  const formatCardNumber = (value: any) => {
-    const cleanValue = value.replace(/\D/g, "");
-
-    // Add a space after every 4 digits
-    const formattedValue = cleanValue.replace(/(\d{4})(?=\d)/g, "$1 ");
-    const limitedValue = cleanValue.slice(0, 16);
-    return formattedValue;
-  };
-
-  const handleInput = (e: any) => {
-    const formattedNumber = formatCardNumber(e.target.value);
-    setNumber(formattedNumber);
-  };
-
-  // Get attribute options from Product data and map them to variations
-  const attributeOptions = product?.attributes[0]?.options || [];
-  const variationIds = product?.variations || [];
 
   const handleNext = () => {
     if (currentStep < 4) {
@@ -296,12 +249,27 @@ const CustomizationSection = ({ hostName, slug }) => {
     );
   };
 
+  const handleTextClick = (target) => {
+    switch (target) {
+      case 'name':
+        setIsVisibleName((prev) => !prev);
+        break;
+      case 'optional':
+        setIsVisibleOptional((prev) => !prev);
+        break;
+      case 'number':
+        setIsVisibleNumber((prev) => !prev);
+        break;
+      default:
+        break;
+    }
+  };
+
   const handleSubmit = () => {
     const containerRef = document.getElementById("captureContainer");
 
     // Use html2canvas to capture the container as an image
     html2canvas(containerRef).then((canvas) => {
-      // Convert the canvas to a data URL (base64 image)
       const dataUrl = canvas.toDataURL("image/png");
 
       // Create a temporary link to download the image
