@@ -38,6 +38,7 @@ const CustomizationSection = ({ hostName, slug }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedVariation, setSelectedVariation] = useState<number | null>(null);
   const [variationData, setVariationData] = useState<any>(null);
+  const [allVariations, setAllVariations] = useState<any>(null);
   const [front, setFront] = useState(true);
   const [name, setName] = useState("");
   const [number, setNumber] = useState("");
@@ -81,7 +82,7 @@ const CustomizationSection = ({ hostName, slug }) => {
     { code: "#3498db", label: "Sky Blue", price: "AED 25" },
   ];
 
-  
+
 
 
   // Check if the click is outside of the elements
@@ -100,6 +101,7 @@ const CustomizationSection = ({ hostName, slug }) => {
     }
   };
 
+
   useEffect(() => {
     if (!slug) {
       console.error("Product slug is undefined");
@@ -116,8 +118,7 @@ const CustomizationSection = ({ hostName, slug }) => {
         setCardImg(
           retVal.images[0]?.src || "/assets/img/detail-page/card-f.png"
         );
-        console.log(product)
-        // console.log(retVal);
+        // console.log(product)
       } catch (err) {
         console.error("Error fetching product:", err);
         setError("Failed to load product details.");
@@ -135,6 +136,12 @@ const CustomizationSection = ({ hostName, slug }) => {
       document.removeEventListener('mousedown', handleClickOutside); // Cleanup on component unmount
     };
   }, []);
+
+
+
+
+
+
 
   // Fetch data for the selected variation
   const fetchVariationData = async (variationId) => {
@@ -169,6 +176,36 @@ const CustomizationSection = ({ hostName, slug }) => {
   // Get attribute options from Product data and map them to variations
   const attributeOptions = product?.attributes[0]?.options || [];
   const variationIds = product?.variations || [];
+
+  useEffect(() => {
+    const fetchAllVariationData = async (variationIds) => {
+      try {
+        // Create an array of promises to fetch data for all variation IDs
+        const variationPromises = variationIds.map(async (variationId) => {
+          const apiEndpoint = apiEndpoints.products.productDetails(variationId);
+          const variationDetails = await FetchAPIData.fetchAPIData({ apiEndpoint }, hostName);
+          return variationDetails; // Return the variation details for each ID
+        });
+
+        // Wait for all promises to resolve (fetch data for all variations)
+        const allVariationDetails = await Promise.all(variationPromises);
+
+        // Set the state with the array of all variation details
+        setAllVariations(allVariationDetails);
+        console.log(allVariationDetails); // Log the correct variable
+
+        return allVariationDetails; // Return all the fetched variation data
+      } catch (err) {
+        console.error("Error fetching variation data:", err);
+        setError("Failed to load variation details.");
+      }
+    };
+
+    if (variationIds && variationIds.length > 0) {
+      fetchAllVariationData(variationIds);
+    }
+
+  }, [variationIds]); // Add variationIds as a dependency
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -726,13 +763,36 @@ const CustomizationSection = ({ hostName, slug }) => {
                   ))}
                 </select>
 
-                <div className=" grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-5 mt-4 relative h-[100%]">
-                  
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {allVariations &&
+                    allVariations.map((variation) => (
+                      <div key={variation.id} className="bg-white p-2 rounded-lg shadow-lg hover:shadow-xl transition-shadow" >
+                        <div className="relative w-full h-20 mb-1">
+                          <Image
+                            src={variation.images[0].src}
+                            alt={variation.name}
+                            layout="fill"
+                            objectFit="cover"
+                            className="rounded-md"
+                          />
+                        </div>
+                        <h3 className="text-center font-semibold text-[13px] text-gray-800">{variation.name}</h3>
+                      </div>
+                    ))
+                  }
+                </div>
+
+
+                {/* <div className=" grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-5 mt-4 relative h-[100%]">
+
+
+
+
                   {attributeOptions.map((option, index) => (
                     <div
                       key={index}
                       className="flex flex-col items-center justify-center rounded-md p-4 transition duration-300 hover:bg-opacity-80 cursor-pointer relative"
-                      // onClick={() => setSelectedColor()}
+                    // onClick={() => setSelectedColor()}
                     >
                       <div
                         className={`absolute right-[-8px] top-[-10px] bg-[#bc8c54] rounded-full border-2 border-white p-[1px]`}
@@ -756,19 +816,19 @@ const CustomizationSection = ({ hostName, slug }) => {
                         1
                       </p>
                       <p
-                        // className={`text-center text-sm ${
-                        //   color.code === "#d4af37" ||
-                        //   color.code === "#00bcd4" ||
-                        //   color.code === "#3498db"
-                        //     ? "text-gray-600"
-                        //     : "text-gray-300"
-                        // }`}
+                      // className={`text-center text-sm ${
+                      //   color.code === "#d4af37" ||
+                      //   color.code === "#00bcd4" ||
+                      //   color.code === "#3498db"
+                      //     ? "text-gray-600"
+                      //     : "text-gray-300"
+                      // }`}
                       >
                         {option}
                       </p>
                     </div>
                   ))}
-                </div> 
+                </div> */}
 
                 {/* <div className=" grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-5 mt-4 relative h-[100%]">
                   
