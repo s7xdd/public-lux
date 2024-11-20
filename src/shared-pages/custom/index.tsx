@@ -28,6 +28,7 @@ const CustomizationSection = ({ hostName, slug }) => {
   const [isVisibleName, setIsVisibleName] = useState(false);
   const [isVisibleOptional, setIsVisibleOptional] = useState(false);
   const [isVisibleNumber, setIsVisibleNumber] = useState(false);
+  const [isVisibleTopNumber, setIsVisibleTopNumber] = useState(false)
   const [isCardFlipped, setIsCardFlipped] = useState(false);
   const [customLogo, setCustomLogo] = useState(false);
   const [selectedColor, setSelectedColor] = useState(null);
@@ -45,17 +46,22 @@ const CustomizationSection = ({ hostName, slug }) => {
     name: false,
     optional: false,
     number: false,
+    topnumber: false,
   });
   const [inputValues, setInputValues] = useState({
     name: "",
     optional: "",
     number: "",
+    topnumber: "",
   });
+
+  const [helper] = useState(() => new MoveableHelper());
 
   // Refs for each draggable item
   const targetRef1 = useRef<HTMLDivElement>(null);
   const targetRef2 = useRef<HTMLDivElement>(null);
   const targetRef3 = useRef<HTMLDivElement>(null);
+  const targetRef4 = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLDivElement>(null);
 
   // State for tracking position, scale, and rotation of each element
@@ -63,10 +69,19 @@ const CustomizationSection = ({ hostName, slug }) => {
     name: { left: 40, top: 300, height: 40, rotate: 0 },
     optional: { left: 40, top: 330, height: 40, rotate: 0 },
     number: { left: 150, top: 250, height: 40, rotate: 0 },
+    topnumber: { left: 200, top: 320, height: 40, rotate: 0 },
     image: { left: 200, top: 150, height: 300, rotate: 0 },
   });
 
-  const [helper] = useState(() => new MoveableHelper());
+  const colors = [
+    { code: "#d4af37", label: "Brushed Gold", price: "AED 25" },
+    { code: "#4a4a4a", label: "Matte Black", price: "AED 25" },
+    { code: "#00bcd4", label: "Ocean Blue", price: "AED 25" },
+    { code: "#95a5a6", label: "Brushed Silver", price: "AED 25" },
+    { code: "#3498db", label: "Sky Blue", price: "AED 25" },
+  ];
+
+  
 
 
   // Check if the click is outside of the elements
@@ -79,6 +94,9 @@ const CustomizationSection = ({ hostName, slug }) => {
     }
     if (targetRef3.current && !targetRef3.current.contains(e.target as Node)) {
       setIsVisibleNumber(false);
+    }
+    if (targetRef4.current && !targetRef4.current.contains(e.target as Node)) {
+      setIsVisibleTopNumber(false);
     }
   };
 
@@ -98,6 +116,7 @@ const CustomizationSection = ({ hostName, slug }) => {
         setCardImg(
           retVal.images[0]?.src || "/assets/img/detail-page/card-f.png"
         );
+        console.log(product)
         // console.log(retVal);
       } catch (err) {
         console.error("Error fetching product:", err);
@@ -214,14 +233,6 @@ const CustomizationSection = ({ hostName, slug }) => {
     }));
   };
 
-  const colors = [
-    { code: "#d4af37", label: "Brushed Gold", price: "AED 25" },
-    { code: "#4a4a4a", label: "Matte Black", price: "AED 25" },
-    { code: "#00bcd4", label: "Ocean Blue", price: "AED 25" },
-    { code: "#95a5a6", label: "Brushed Silver", price: "AED 25" },
-    { code: "#3498db", label: "Sky Blue", price: "AED 25" },
-  ];
-
   const handleNext = () => {
     if (currentStep < 4) {
       setCurrentStep(currentStep + 1);
@@ -259,6 +270,9 @@ const CustomizationSection = ({ hostName, slug }) => {
         break;
       case 'number':
         setIsVisibleNumber((prev) => !prev);
+        break;
+      case 'topnumber':
+        setIsVisibleTopNumber((prev) => !prev)
         break;
       default:
         break;
@@ -528,6 +542,26 @@ const CustomizationSection = ({ hostName, slug }) => {
                     {inputValues.number}
                   </div>
 
+                  <div
+                    onClick={() => handleTextClick('topnumber')}
+                    ref={targetRef4}
+                    style={{
+                      position: "absolute",
+                      left: elementValues.topnumber.left,
+                      top: elementValues.topnumber.top,
+                      width: elementValues.topnumber.width,
+                      height: elementValues.topnumber.height,
+                      transform: `rotate(${elementValues.topnumber.rotate}deg)`,
+                      color: "white",
+                      padding: "8px",
+                      fontSize: "20px",
+                      borderRadius: "4px",
+                      cursor: "move",
+                    }}
+                  >
+                    {inputValues.topnumber}
+                  </div>
+
 
                   {/* Moveable components to handle drag, scale, and rotate interactions for each item */}
                   {image && (
@@ -593,6 +627,23 @@ const CustomizationSection = ({ hostName, slug }) => {
                     />
 
                   )}
+
+                  {isVisibleTopNumber && (
+                    <Moveable
+                      target={targetRef4.current}
+                      draggable={true}
+                      scalable={true}
+                      keepRatio={true}
+                      rotatable={true}
+                      onDragStart={() => handleDragStart("name")}
+                      onDragEnd={() => handleDragEnd("name")}
+                      onDrag={(e) => handleDrag(e, "name")}
+                      onScale={(e) => handleScale(e, "name")}
+                      onRotate={(e) => handleRotate(e, "name")}
+                      visible={isDragging.name} // Only visible when it's being dragged
+                    />
+                  )}
+
                 </div>
 
               )}
@@ -675,19 +726,16 @@ const CustomizationSection = ({ hostName, slug }) => {
                   ))}
                 </select>
 
-                {/* <div className=" grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-5 mt-4 relative h-[100%]">
+                <div className=" grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-5 mt-4 relative h-[100%]">
                   
-                  {colors.map((color, index) => (
+                  {attributeOptions.map((option, index) => (
                     <div
                       key={index}
                       className="flex flex-col items-center justify-center rounded-md p-4 transition duration-300 hover:bg-opacity-80 cursor-pointer relative"
-                      style={{ backgroundColor: color.code }}
-                      onClick={() => setSelectedColor(color.code)}
+                      // onClick={() => setSelectedColor()}
                     >
                       <div
-                        className={`absolute right-[-8px] top-[-10px] bg-[#bc8c54] rounded-full border-2 border-white p-[1px] ${
-                          selectedColor === color.code ? "block" : "hidden"
-                        }`}
+                        className={`absolute right-[-8px] top-[-10px] bg-[#bc8c54] rounded-full border-2 border-white p-[1px]`}
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -705,22 +753,22 @@ const CustomizationSection = ({ hostName, slug }) => {
                         </svg>
                       </div>
                       <p className="text-center w-min px-3 mx-auto py-1 mb-2 bg-black rounded-full text-white text-xs font-semibold text-nowrap">
-                        {color.price}
+                        1
                       </p>
                       <p
-                        className={`text-center text-sm ${
-                          color.code === "#d4af37" ||
-                          color.code === "#00bcd4" ||
-                          color.code === "#3498db"
-                            ? "text-gray-600"
-                            : "text-gray-300"
-                        }`}
+                        // className={`text-center text-sm ${
+                        //   color.code === "#d4af37" ||
+                        //   color.code === "#00bcd4" ||
+                        //   color.code === "#3498db"
+                        //     ? "text-gray-600"
+                        //     : "text-gray-300"
+                        // }`}
                       >
-                        {color.label}
+                        {option}
                       </p>
                     </div>
                   ))}
-                </div>  */}
+                </div> 
 
                 {/* <div className=" grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-5 mt-4 relative h-[100%]">
                   
@@ -767,16 +815,11 @@ const CustomizationSection = ({ hostName, slug }) => {
                 <label className="block text-gray-800 font-semibold mb-1">
                   Your Name
                 </label>
-                {/* <input
-                  type="text"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AE9164] focus:border-[#AE9164] placeholder-gray-400"
-                  placeholder="Enter your name"
-                  required
-                /> */}
                 <input
                   type="text"
                   name="name"
-                  placeholder="Text 1"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AE9164] focus:border-[#AE9164] placeholder-gray-400"
+                  placeholder="Your name"
                   value={inputValues.name}
                   onChange={handleInputChange}
                 />
@@ -789,14 +832,14 @@ const CustomizationSection = ({ hostName, slug }) => {
                 </label>
                 {/* <input
                   type="text"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AE9164] focus:border-[#AE9164] placeholder-gray-400"
-                  placeholder="Optional text"
+                  
                 /> */}
 
                 <input
                   type="text"
                   name="optional"
-                  placeholder="Text 2"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AE9164] focus:border-[#AE9164] placeholder-gray-400"
+                  placeholder="Optional text"
                   value={inputValues.optional}
                   onChange={handleInputChange}
                 />
@@ -808,16 +851,11 @@ const CustomizationSection = ({ hostName, slug }) => {
                 <label className="block text-gray-800 font-semibold mb-1">
                   Card Number (Optional)
                 </label>
-                {/* <input
-                  type="text"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AE9164] focus:border-[#AE9164] placeholder-gray-400"
-                  placeholder="Enter card number"
-                /> */}
-
                 <input
                   type="text"
                   name="number"
-                  placeholder="Text 3"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AE9164] focus:border-[#AE9164] placeholder-gray-400"
+                  placeholder="Enter card number"
                   value={inputValues.number}
                   onChange={handleInputChange}
                 />
@@ -852,7 +890,7 @@ const CustomizationSection = ({ hostName, slug }) => {
                   <label htmlFor="yes-branding" className="text-gray-800 m-0">
                     Yes (+10)
                   </label>
-                  <span className="ml-2 bg-black text-white text-sm font-bold px-2 py-1 rounded-full text-base">
+                  <span className="ml-2 bg-black text-white text-sm font-bold px-2 py-1 rounded-full">
                     $10.00
                   </span>
                 </div>
@@ -865,8 +903,11 @@ const CustomizationSection = ({ hostName, slug }) => {
                 </label>
                 <input
                   type="text"
+                  name="number"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AE9164] focus:border-[#AE9164] placeholder-gray-400"
-                  placeholder="Text on top of card"
+                  placeholder="Enter card number"
+                  value={inputValues.topnumber}
+                  onChange={handleInputChange}
                 />
               </div>
 
