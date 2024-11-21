@@ -1042,120 +1042,178 @@ const CustomizationSection = ({ hostName, slug }) => {
         <div className="block md:hidden">
           <div id="stepper" className="w-full">
             {/* Step content */}
-            <div
-              id="step-content"
-              className="p-4 border rounded-lg bg-gray-50 text-gray-700"
-            >
-              {/* Step 1 content */}
+            <div className="p-5">
+              <div className="mb-6 mt-6">
+                <div className="flex justify-between">
+                  <button
+                    onClick={() => setCurrentStep(currentStep > 1 ? currentStep - 1 : 1)}
+                    className="bg-gray-200 px-4 py-2 rounded-full text-sm"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={() => setCurrentStep(currentStep < 4 ? currentStep + 1 : 4)}
+                    className="bg-gray-200 px-4 py-2 rounded-full text-sm"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+
+              {/* Step 1: Choose Color */}
               {currentStep === 1 && (
                 <div>
-                  <label
-                    htmlFor="add-borders"
-                    className="block pb-3 border-b border-gray-300 text-gray-800 font-semibold mb-2"
-                  >
+                  <label htmlFor="add-borders" className="block pb-3 border-b border-gray-300 text-gray-800 font-semibold mb-2">
                     Choose Color
                   </label>
-                  <div className="flex overflow-x-auto p-2 gap-5 mt-4 relative">
-                    {/* Color Options */}
-                    <div className="flex flex-col align-center justify-center rounded-md bg-[#d4af37] p-4 transition duration-300 hover:bg-[#c49c30] cursor-pointer relative">
-                      <div className="hidden absolute right-[-8px] top-[-10px] bg-[#bc8c54] rounded-full border-2 border-white p-[1px]">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          className="w-5 h-5 text-white"
+                  <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2">
+                    {allVariations ? (
+                      allVariations.map((variation) => (
+                        <div
+                          key={variation.id}
+                          className={`bg-white p-3 rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer ${selectedVariationId === variation.id ? "border-2 border-primary box-border" : ""
+                            }`}
+                          onClick={() => handleVariationChange(variation.id)}
+                          style={{ boxSizing: "border-box" }}
                         >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                      </div>
-                      <p className="text-center w-min px-3 mx-auto py-1 mb-2 bg-black rounded-full text-white text-xs font-semibold text-nowrap">
-                        AED 25
-                      </p>
-                      <p className="text-center text-gray-600 text-sm">
-                        Brushed Gold
-                      </p>
-                    </div>
-                    {/* Repeat other color options */}
+                          <div className="relative w-full h-20 mb-1">
+                            <Image
+                              src={variation.images[0].src}
+                              alt={variation.name}
+                              layout="fill"
+                              objectFit="cover"
+                              className="rounded-md"
+                            />
+                          </div>
+                          <h3 className="text-center font-semibold text-[13px] text-gray-800">{variation.name.split("-")[1]}</h3>
+                        </div>
+                      ))
+                    ) : (
+                      Array.from({ length: 8 }).map((_, index) => (
+                        <div key={index} className="bg-white p-2 rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+                          <div className="relative w-full h-20 mb-1">
+                            <LoadingSkeleton width="100%" height="100%" variant="rectangular" />
+                          </div>
+                          <LoadingSkeleton width="60%" height={20} className="mx-auto mt-2" />
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
               )}
 
-              {/* Step 2 content */}
+              {/* Step 2: Your Name */}
               {currentStep === 2 && (
-                <div className="step-content">
-                  <label className="block text-gray-800 font-semibold mb-1">
-                    Your Name
-                  </label>
+                <div>
+                  <label className="block text-gray-800 font-semibold mb-1">Your Name</label>
                   <input
                     type="text"
+                    name="name"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AE9164] focus:border-[#AE9164] placeholder-gray-400"
-                    placeholder="Enter your name"
-                    required
+                    placeholder="Your name"
+                    value={inputValues.name}
+                    onChange={handleInputChange}
                   />
                 </div>
               )}
 
-              {/* Step 3 content */}
+              {/* Step 3: Card Number Placement */}
               {currentStep === 3 && (
-                <div className="step-content">
-                  <label className="block text-gray-800 font-semibold mb-1">
-                    Optional Text
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AE9164] focus:border-[#AE9164] placeholder-gray-400"
-                    placeholder="Optional text"
-                  />
+                <div>
+                  <label className="block text-gray-800 font-semibold mb-4">Card number placement</label>
+                  <div className="flex items-center mb-4">
+                    <input
+                      type="radio"
+                      id="no-branding"
+                      name="remove-branding"
+                      value="front"
+                      className="mr-2 focus:ring-[#AE9164] text-[#b88c4f]"
+                      checked={cardPlacement === "front"}
+                      onChange={handleRadioChange}
+                    />
+                    <label htmlFor="no-branding" className="text-gray-800 m-0">
+                      Front
+                    </label>
+                  </div>
+                  <div className="flex items-center">
+                    <input
+                      type="radio"
+                      id="yes-branding"
+                      name="remove-branding"
+                      value="back"
+                      className="mr-2 focus:ring-[#AE9164] text-[#b88c4f]"
+                      checked={cardPlacement === "back"}
+                      onChange={handleRadioChange}
+                    />
+                    <label htmlFor="yes-branding" className="text-gray-800 m-0">
+                      Back (+10)
+                    </label>
+                    {cardPlacement === "back" && (
+                      <span className="ml-2 bg-black text-white text-sm font-bold px-2 py-1 rounded-full">$10.00</span>
+                    )}
+                  </div>
                 </div>
               )}
 
-              {/* Step 4 content */}
+              {/* Step 4: Choose Logo */}
               {currentStep === 4 && (
-                <div className="step-content">
-                  <label className="block text-gray-800 font-semibold mb-4 pb-3 border-b border-gray-300">
+                <div>
+                  <label htmlFor="choose-logo" className="block text-gray-800 font-semibold mb-4 pb-3 border-b border-gray-300">
                     Choose Logo
                   </label>
-                  <div className="lx-colors flex overflow-x-auto overflow-y-hidden gap-2">
-                    {/* Logo Options */}
-                    <div className="logo-option bg-gray-100 lx-card-logo cursor-pointer p-4 pt-0 rounded-lg flex-1 text-center transition duration-200 border-transparent border-2 hover:border-[#AE9164]">
-                      <Image
-                        src="/assets/img/no-logo.png"
-                        height={20}
-                        width={20}
-                        alt="Brushed Black Logo"
-                        className="w-full h-full min-w-[90px] object-contain rounded-md lx-card-logo"
-                      />
-                      <p className="text-center text-sm text-gray-600 truncate">
-                        None
-                      </p>
+                  <div className="lx-colors grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-2">
+                    <div className="aspect-square bg-gray-100 rounded-md p-4 pt-0 transition duration-300 cursor-pointer logo-option border-transparent border-2 hover:border-[#AE9164]" onClick={() => setCustomLogo(false)}>
+                      <Image src="/assets/img/no-logo.png" alt="Brushed Black Logo" height={20} width={20} className="w-full h-full object-contain rounded-md lx-card-logo" />
+                      <p className="text-center text-sm text-gray-600 truncate">None</p>
                     </div>
-                    {/* Repeat logo options */}
+
+                    <div
+                      className="logo-option bg-gray-100 lx-card-logo cursor-pointer p-4 pt-0 rounded-lg flex-1 text-center transition duration-200 border-transparent border-2 hover:border-[#AE9164] relative"
+                      onClick={() => setCustomLogo(true)}
+                    >
+                      <Image src="/assets/img/custom-logo.png" height={20} width={20} alt="Brushed Black Logo" className="w-full object-contain rounded-md lx-card-logo" />
+                      <p className="text-center w-min px-2 mx-auto py-1 bg-black rounded-full text-white text-xs font-semibold text-nowrap">AED 5</p>
+                      <p className="mt-4 text-center text-sm text-gray-600">Custom Logo</p>
+                    </div>
                   </div>
+                  {customLogo && (
+                    <div>
+                      <input type="file" accept="image/*" onChange={handleFileChange} style={{ marginBottom: "20px" }} />
+                      {image ? (
+                        <div>
+                          <h3>Selected Image:</h3>
+                          <Image
+                            src={image}
+                            height={350}
+                            width={350}
+                            alt="Preview"
+                            style={{
+                              maxWidth: "100%",
+                              maxHeight: "400px",
+                              objectFit: "contain",
+                              border: "1px solid #ddd",
+                              borderRadius: "8px",
+                              marginBottom: "20px",
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        <p>No image selected yet.</p>
+                      )}
+                    </div>
+                  )}
+                  {/* Add to Cart Button */}
+                  <button
+                    className="w-full bg-[#AE9164] py-3 rounded-full text-white text-lg font-bold hover:bg-[#9d7c47] transition duration-200 mt-4"
+                    onClick={handleSubmit}
+                  >
+                    Add to Cart
+                  </button>
                 </div>
               )}
-            </div>
 
-            {/* Navigation buttons */}
-            <div className="mt-4 flex justify-between">
-              <button
-                onClick={handlePrev}
-                className="lx-add-to-cart flex items-center bg-gray-300 text-nowrap text-black py-2 px-4 rounded hover:bg-gray-400 transition duration-200"
-                disabled={currentStep === 1}
-              >
-                Prev
-              </button>
-              <button
-                onClick={handleNext}
-                className="lx-add-to-cart flex items-center bg-gray-300 text-black text-nowrap py-2 px-4 rounded hover:bg-gray-400 transition duration-200"
-              >
-                {currentStep === 4 ? "Finish" : "Next"}
-              </button>
+
+
             </div>
           </div>
         </div>
