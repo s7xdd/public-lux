@@ -25,21 +25,20 @@ const Moveable = makeMoveable<DraggableProps & ScalableProps & RotatableProps>([
 const CustomizationSection = ({ hostName, slug }) => {
 
   const [image, setImage] = useState<string | null>(null);
+  const [galleryImages, setGalleryImages] = useState([]);
   const [imageName, setImageName] = useState<string | null>(null);
   const [isVisibleName, setIsVisibleName] = useState(false);
   const [isVisibleOptional, setIsVisibleOptional] = useState(false);
   const [isVisibleNumber, setIsVisibleNumber] = useState(false);
   const [isVisibleTopNumber, setIsVisibleTopNumber] = useState(false)
   const [isCardFlipped, setIsCardFlipped] = useState(false);
+  const [cardPlacement, setCardPlacement] = useState<'front' | 'back'>('front');
   const [customLogo, setCustomLogo] = useState(false);
-  const [selectedColor, setSelectedColor] = useState(null);
   const [currentStep, setCurrentStep] = useState(1);
   const [product, setProduct] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [variationData, setVariationData] = useState<any>(null);
   const [allVariations, setAllVariations] = useState<any>(null);
-  const [cardImg, setCardImg] = useState("");
   const [isDragging, setIsDragging] = useState({
     name: false,
     optional: false,
@@ -70,7 +69,7 @@ const CustomizationSection = ({ hostName, slug }) => {
     optional: { left: 40, top: 330, height: 40, rotate: 0 },
     number: { left: 150, top: 250, height: 40, rotate: 0 },
     topnumber: { left: 180, top: 120, height: 40, rotate: 0 },
-    image: { left: 200, top: 150, height: 300, rotate: 0 },
+    image: { left: 200, top: 150, height: 300, width: 200, rotate: 0 },
   });
 
   // Check if the click is outside of the elements
@@ -148,39 +147,61 @@ const CustomizationSection = ({ hostName, slug }) => {
   useEffect(() => {
     const fetchAllVariationData = async (variationIds) => {
       try {
-        // Create an array of promises to fetch data for all variation IDs
         const variationPromises = variationIds.map(async (variationId) => {
           const apiEndpoint = apiEndpoints.products.productDetails(variationId);
           const variationDetails = await FetchAPIData.fetchAPIData({ apiEndpoint });
-          return variationDetails; // Return the variation details for each ID
+
+          let galleryImages = [];
+          const galleryImageIds = variationDetails.meta_data.find(
+            (meta) => meta.key === 'woo_variation_gallery_images'
+          )?.value;
+
+          if (Array.isArray(galleryImageIds)) {
+            // Fetch gallery image details for the variation
+            galleryImages = await Promise.all(
+              galleryImageIds.map(async (imageId) => {
+                const apiEndpoint = apiEndpoints.products.productImage(imageId);
+                const response = await FetchAPIData.fetchAPIData({ apiEndpoint });
+
+                return {
+                  id: imageId,
+                  url: response.source_url,
+                  width: response.media_details.width,
+                  height: response.media_details.height,
+                };
+              })
+            );
+          }
+
+          // Add gallery images to variation details
+          variationDetails.galleryImages = galleryImages;
+          return variationDetails; // Return variation details along with images
         });
 
-        // Wait for all promises to resolve (fetch data for all variations)
         const allVariationDetails = await Promise.all(variationPromises);
 
-        // Set the state with the array of all variation details
         setAllVariations(allVariationDetails);
-        console.log(allVariationDetails); // Log the correct variable
+        console.log("All Variations with Gallery Images:", allVariationDetails);
 
-        return allVariationDetails; // Return all the fetched variation data
       } catch (err) {
         console.error("Error fetching variation data:", err);
         setError("Failed to load variation details.");
       }
     };
 
-    if (variationIds && variationIds.length > 0) {
-      fetchAllVariationData(variationIds);
+    if (product?.variations && product.variations.length > 0) {
+      fetchAllVariationData(product.variations);
     }
-
   }, [product]);
+
+
 
   const handleVariationChange = async (id) => {
     const selectedVariation = allVariations.find(variation => variation.id === id);
-    setCardFront(selectedVariation?.images?.[0]?.src ||
+    setCardFront(selectedVariation?.galleryImages[0]?.url ||
       product?.images[0]?.src ||
       "/assets/img/detail-page/card-f.png")
-    setCardBack(selectedVariation?.images?.[1]?.src ||
+    setCardBack(selectedVariation?.galleryImages[1]?.url ||
       product?.images[1]?.src ||
       "/assets/img/detail-page/card-b.jpg")
   };
@@ -284,6 +305,10 @@ const CustomizationSection = ({ hostName, slug }) => {
       default:
         break;
     }
+  };
+
+  const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setCardPlacement(event.target.value as 'front' | 'back');
   };
 
   const handleSubmit = () => {
@@ -463,25 +488,28 @@ const CustomizationSection = ({ hostName, slug }) => {
                       className="w-full h-300 object-cover object-center shadow-lg border border-gray-300 rounded-lg"
                     />
 
-                    <div
-                      ref={targetRef3}
-                      onClick={() => handleTextClick('number')}
-                      style={{
-                        position: "absolute",
-                        left: 30,
-                        top: 200,
-                        width: elementValues.number.width,
-                        height: elementValues.number.height,
-                        transform: `rotate(${elementValues.number.rotate}deg)`,
-                        color: "white",
-                        padding: "8px",
-                        fontSize: "20px",
-                        borderRadius: "4px",
-                        cursor: "move",
-                      }}
-                    >
-                      {inputValues.number}
-                    </div>
+                    {cardPlacement === 'back' && (
+                      <div
+                        ref={targetRef3}
+                        onClick={() => handleTextClick('number')}
+                        style={{
+                          position: "absolute",
+                          left: 30,
+                          top: 200,
+                          width: elementValues.number.width,
+                          height: elementValues.number.height,
+                          transform: `rotate(${elementValues.number.rotate}deg)`,
+                          color: "white",
+                          padding: "8px",
+                          fontSize: "20px",
+                          borderRadius: "4px",
+                          cursor: "move",
+                        }}
+                      >
+                        {inputValues.number}
+                      </div>
+
+                    )}
                   </div>
                 ) : (
                   <div className="relative">
@@ -506,12 +534,12 @@ const CustomizationSection = ({ hostName, slug }) => {
                           overflow: "hidden", // Prevents image from overflowing outside the container
                         }}
                       >
-                        <img
+                        <Image
                           src={image}
                           alt="Uploaded Preview"
+                          width={elementValues.image.width}  // You need to specify a fixed width for Next.js Image component
+                          height={elementValues.image.height}  // You need to specify a fixed height for Next.js Image component
                           style={{
-                            width: "100%", // The image will scale to the size of the container
-                            height: "100%", // The image will scale to the size of the container
                             objectFit: "contain", // Or "cover", depending on how you want to fit the image
                           }}
                         />
@@ -561,26 +589,29 @@ const CustomizationSection = ({ hostName, slug }) => {
                     </div>
 
 
+                    {cardPlacement === 'front' && (
+                      <div
+                        ref={targetRef3}
+                        onClick={() => handleTextClick('number')}
+                        style={{
+                          position: "absolute",
+                          left: elementValues.number.left,
+                          top: elementValues.number.top,
+                          width: elementValues.number.width,
+                          height: elementValues.number.height,
+                          transform: `rotate(${elementValues.number.rotate}deg)`,
+                          color: "white",
+                          padding: "8px",
+                          fontSize: "20px",
+                          borderRadius: "4px",
+                          cursor: "move",
+                        }}
+                      >
+                        {inputValues.number}
+                      </div>
 
-                    <div
-                      ref={targetRef3}
-                      onClick={() => handleTextClick('number')}
-                      style={{
-                        position: "absolute",
-                        left: elementValues.number.left,
-                        top: elementValues.number.top,
-                        width: elementValues.number.width,
-                        height: elementValues.number.height,
-                        transform: `rotate(${elementValues.number.rotate}deg)`,
-                        color: "white",
-                        padding: "8px",
-                        fontSize: "20px",
-                        borderRadius: "4px",
-                        cursor: "move",
-                      }}
-                    >
-                      {inputValues.number}
-                    </div>
+                    )}
+
 
                     <div
                       onClick={() => handleTextClick('topnumber')}
@@ -827,12 +858,13 @@ const CustomizationSection = ({ hostName, slug }) => {
                     type="radio"
                     id="no-branding"
                     name="remove-branding"
-                    value="no"
+                    value="front"
                     className="mr-2 focus:ring-[#AE9164] text-[#b88c4f]"
-                    checked
+                    checked={cardPlacement === 'front'}
+                    onChange={handleRadioChange}
                   />
                   <label htmlFor="no-branding" className="text-gray-800 m-0">
-                    No
+                    Front
                   </label>
                 </div>
                 <div className="flex items-center">
@@ -840,15 +872,19 @@ const CustomizationSection = ({ hostName, slug }) => {
                     type="radio"
                     id="yes-branding"
                     name="remove-branding"
-                    value="yes"
+                    value="back"
                     className="mr-2 focus:ring-[#AE9164] text-[#b88c4f]"
+                    checked={cardPlacement === 'back'}
+                    onChange={handleRadioChange}
                   />
                   <label htmlFor="yes-branding" className="text-gray-800 m-0">
-                    Yes (+10)
+                    Back (+10)
                   </label>
-                  <span className="ml-2 bg-black text-white text-sm font-bold px-2 py-1 rounded-full">
-                    $10.00
-                  </span>
+                  {cardPlacement === 'back' && (
+                    <span className="ml-2 bg-black text-white text-sm font-bold px-2 py-1 rounded-full">
+                      $10.00
+                    </span>
+                  )}
                 </div>
               </div>
 
