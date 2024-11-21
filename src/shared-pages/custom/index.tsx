@@ -11,10 +11,13 @@ import {
   Rotatable,
   Draggable,
   Scalable,
+  PinchableProps,
+  Pinchable,
 } from "react-moveable";
 import MoveableHelper from "moveable-helper";
 import html2canvas from "html2canvas";
 import LoadingSkeleton from "@/components/common/card-skeleton";
+
 
 const Moveable = makeMoveable<DraggableProps & ScalableProps & RotatableProps>([
   Draggable,
@@ -23,7 +26,6 @@ const Moveable = makeMoveable<DraggableProps & ScalableProps & RotatableProps>([
 ]);
 
 const CustomizationSection = ({ hostName, slug }) => {
-
   const [image, setImage] = useState<string | null>(null);
   const [galleryImages, setGalleryImages] = useState([]);
   const [imageName, setImageName] = useState<string | null>(null);
@@ -65,12 +67,13 @@ const CustomizationSection = ({ hostName, slug }) => {
 
   // State for tracking position, scale, and rotation of each element
   const [elementValues, setElementValues] = useState({
-    name: { left: 40, top: 300, height: 40, rotate: 0 },
-    optional: { left: 40, top: 330, height: 40, rotate: 0 },
-    number: { left: 150, top: 250, height: 40, rotate: 0 },
-    topnumber: { left: 180, top: 120, height: 40, rotate: 0 },
-    image: { left: 200, top: 150, height: 300, width: 200, rotate: 0 },
+    name: { left: 40, scale: 1, top: 300, height: 40, width: 100, rotate: 0 },
+    optional: { left: 40, scale: 1, top: 330, height: 40, rotate: 0 },
+    number: { left: 150, scale: 1, top: 250, height: 40, rotate: 0 },
+    topnumber: { left: 180, scale: 1, top: 120, height: 40, rotate: 0 },
+    image: { left: 200, scale: 1, top: 150, height: 300, width: 200, rotate: 0 },
   });
+
 
   // Check if the click is outside of the elements
   const handleClickOutside = (e: MouseEvent) => {
@@ -253,8 +256,7 @@ const CustomizationSection = ({ hostName, slug }) => {
       ...prevValues,
       [text]: {
         ...prevValues[text],
-        width: e.width,
-        height: e.height,
+        scale: e.scale[0], 
       },
     }));
   };
@@ -555,14 +557,14 @@ const CustomizationSection = ({ hostName, slug }) => {
                         position: "absolute",
                         left: elementValues.name.left,
                         top: elementValues.name.top,
-                        width: elementValues.name.width,
-                        height: elementValues.name.height,
-                        transform: `rotate(${elementValues.name.rotate}deg)`,
+                        height: elementValues.name.height * elementValues.name.scale, // Scale the height
+                        transform: `scale(${elementValues.name.scale}) rotate(${elementValues.name.rotate}deg)`,
                         color: "white",
                         padding: "8px",
-                        fontSize: "20px",
+                        fontSize: `${20 * elementValues.name.scale}px`, 
                         borderRadius: "4px",
                         cursor: "move",
+                        
                       }}
                     >
                       {inputValues.name}
@@ -575,12 +577,11 @@ const CustomizationSection = ({ hostName, slug }) => {
                         position: "absolute",
                         left: elementValues.optional.left,
                         top: elementValues.optional.top,
-                        width: elementValues.optional.width,
-                        height: elementValues.optional.height,
-                        transform: `rotate(${elementValues.optional.rotate}deg)`,
+                        height: elementValues.optional.height * elementValues.optional.scale, // Scale the height
+                        transform: `scale(${elementValues.optional.scale}) rotate(${elementValues.optional.rotate}deg)`,
                         color: "white",
                         padding: "8px",
-                        fontSize: "20px",
+                        fontSize: `${20 * elementValues.optional.scale}px`, 
                         borderRadius: "4px",
                         cursor: "move",
                       }}
@@ -597,12 +598,11 @@ const CustomizationSection = ({ hostName, slug }) => {
                           position: "absolute",
                           left: elementValues.number.left,
                           top: elementValues.number.top,
-                          width: elementValues.number.width,
-                          height: elementValues.number.height,
-                          transform: `rotate(${elementValues.number.rotate}deg)`,
+                          height: elementValues.number.height * elementValues.number.scale, // Scale the height
+                          transform: `scale(${elementValues.number.scale}) rotate(${elementValues.number.rotate}deg)`,
                           color: "white",
                           padding: "8px",
-                          fontSize: "20px",
+                          fontSize: `${20 * elementValues.number.scale}px`, 
                           borderRadius: "4px",
                           cursor: "move",
                         }}
@@ -620,12 +620,11 @@ const CustomizationSection = ({ hostName, slug }) => {
                         position: "absolute",
                         left: elementValues.topnumber.left,
                         top: elementValues.topnumber.top,
-                        width: elementValues.topnumber.width,
-                        height: elementValues.topnumber.height,
-                        transform: `rotate(${elementValues.topnumber.rotate}deg)`,
+                        height: elementValues.topnumber.height * elementValues.topnumber.scale, // Scale the height
+                        transform: `scale(${elementValues.topnumber.scale}) rotate(${elementValues.topnumber.rotate}deg)`,
                         color: "white",
                         padding: "8px",
-                        fontSize: "20px",
+                        fontSize: `${20 * elementValues.topnumber.scale}px`, 
                         borderRadius: "4px",
                         cursor: "move",
                       }}
@@ -657,7 +656,6 @@ const CustomizationSection = ({ hostName, slug }) => {
                         keepRatio={true}
                         rotatable={true}
                         onDragStart={() => handleDragStart("name")}
-                        onDragEnd={() => handleDragEnd("name")}
                         onDrag={(e) => handleDrag(e, "name")}
                         onScale={(e) => handleScale(e, "name")}
                         onRotate={(e) => handleRotate(e, "name")}
@@ -705,12 +703,12 @@ const CustomizationSection = ({ hostName, slug }) => {
                         scalable={true}
                         keepRatio={true}
                         rotatable={true}
-                        onDragStart={() => handleDragStart("name")}
-                        onDragEnd={() => handleDragEnd("name")}
-                        onDrag={(e) => handleDrag(e, "name")}
-                        onScale={(e) => handleScale(e, "name")}
-                        onRotate={(e) => handleRotate(e, "name")}
-                        visible={isDragging.name} // Only visible when it's being dragged
+                        onDragStart={() => handleDragStart("topnumber")}
+                        onDragEnd={() => handleDragEnd("topnumber")}
+                        onDrag={(e) => handleDrag(e, "topnumber")}
+                        onScale={(e) => handleScale(e, "topnumber")}
+                        onRotate={(e) => handleRotate(e, "topnumber")}
+                        visible={isDragging.topnumber} // Only visible when it's being dragged
                       />
                     )}
 
