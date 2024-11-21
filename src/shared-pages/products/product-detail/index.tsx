@@ -6,14 +6,19 @@ import FetchAPIData from "@/server-api/apifunctions/apifetch";
 import { apiEndpoints } from "@/server-api/config/api.endpoints";
 import Image from "next/image";
 import apiPost from "@/server-api/apifunctions/apipost";
+import LoadingSkeleton from "@/components/common/card-skeleton";
 
 const ProductDetail = ({ hostName, slug }: ProductDetailProps) => {
   const [product, setProduct] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [selectedVariation, setSelectedVariation] = useState<number | null>(
-    null
-  );
+  const [cardFront, setCardFront] = useState('')
+  const [cardBack, setCardBack] = useState('')
+  // const [selectedVariation, setSelectedVariation] = useState<number | null>(
+  //   null
+  // );
+  const [allVariations, setAllVariations] = useState<any>(null);
+  const [selectedVariationId, setSelectedVariationId] = useState(null);
   const [variationData, setVariationData] = useState<any>(null);
   const [side, setSide] = useState("front");
   const [name, setName] = useState("");
@@ -45,28 +50,93 @@ const ProductDetail = ({ hostName, slug }: ProductDetailProps) => {
     fetchProduct();
   }, [slug, hostName]);
 
-  // Fetch data for the selected variation
-  const fetchVariationData = async (variationId: any) => {
-    try {
-      const apiEndpoint = apiEndpoints.products.productDetails(variationId);
-      const variationDetails = await FetchAPIData.fetchAPIData(
-        { apiEndpoint },
-        hostName
-      );
-      setVariationData(variationDetails);
-    } catch (err) {
-      console.error("Error fetching variation data:", err);
-      setError("Failed to load variation details.");
+  useEffect(() => {
+    const fetchAllVariationData = async (variationIds) => {
+      try {
+        const variationPromises = variationIds.map(async (variationId) => {
+          const apiEndpoint = apiEndpoints.products.productDetails(variationId);
+          const variationDetails = await FetchAPIData.fetchAPIData({ apiEndpoint });
+
+          let galleryImages = [];
+          const galleryImageIds = variationDetails.meta_data.find(
+            (meta) => meta.key === 'woo_variation_gallery_images'
+          )?.value;
+
+          if (Array.isArray(galleryImageIds)) {
+            // Fetch gallery image details for the variation
+            galleryImages = await Promise.all(
+              galleryImageIds.map(async (imageId) => {
+                const apiEndpoint = apiEndpoints.products.productImage(imageId);
+                const response = await FetchAPIData.fetchAPIData({ apiEndpoint });
+
+                return {
+                  id: imageId,
+                  url: response.source_url,
+                  width: response.media_details.width,
+                  height: response.media_details.height,
+                };
+              })
+            );
+          }
+
+          // Add gallery images to variation details
+          variationDetails.galleryImages = galleryImages;
+          return variationDetails; // Return variation details along with images
+        });
+
+        const allVariationDetails = await Promise.all(variationPromises);
+
+        setAllVariations(allVariationDetails);
+        console.log("All Variations with Gallery Images:", allVariationDetails);
+
+      } catch (err) {
+        console.error("Error fetching variation data:", err);
+        setError("Failed to load variation details.");
+      }
+    };
+
+    if (product?.variations && product.variations.length > 0) {
+      fetchAllVariationData(product.variations);
     }
+  }, [product]);
+
+
+  const handleVariationChange = async (id) => {
+    setSelectedVariationId(id);
+    const selectedVariation = allVariations.find(variation => variation.id === id);
+    setCardFront(
+    selectedVariation?.images?.[0]?.src ||
+    product?.images[0]?.src ||
+    "/assets/img/detail-page/card-f.png");
+  setCardBack(
+    selectedVariation?.images?.[1]?.src ||
+    product?.images[1]?.src ||
+    "/assets/img/detail-page/card-b.jpg");
   };
 
-  const handleVariationChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    const variationId = parseInt(event.target.value);
-    setSelectedVariation(variationId);
-    fetchVariationData(variationId);
-  };
+
+  // // Fetch data for the selected variation
+  // const fetchVariationData = async (variationId: any) => {
+  //   try {
+  //     const apiEndpoint = apiEndpoints.products.productDetails(variationId);
+  //     const variationDetails = await FetchAPIData.fetchAPIData(
+  //       { apiEndpoint },
+  //       hostName
+  //     );
+  //     setVariationData(variationDetails);
+  //   } catch (err) {
+  //     console.error("Error fetching variation data:", err);
+  //     setError("Failed to load variation details.");
+  //   }
+  // };
+
+  // const handleVariationChange = (
+  //   event: React.ChangeEvent<HTMLSelectElement>
+  // ) => {
+  //   const variationId = parseInt(event.target.value);
+  //   setSelectedVariation(variationId);
+  //   fetchVariationData(variationId);
+  // };
 
   const formatCardNumber = (value: any) => {
     // Remove all non-numeric characters
@@ -89,14 +159,14 @@ const ProductDetail = ({ hostName, slug }: ProductDetailProps) => {
   const variationIds = product?.variations || [];
 
   // Determine the images to display (either from selected variation or default product or placeholder)
-  const frontImageSrc =
-    variationData?.images?.[0]?.src ||
-    product?.images[0]?.src ||
-    "/assets/img/detail-page/card-f.png";
-  const backImageSrc =
-    variationData?.images?.[1]?.src ||
-    product?.images[1]?.src ||
-    "/assets/img/detail-page/card-b.jpg";
+  // const frontImageSrc =
+  //   variationData?.images?.[0]?.src ||
+  //   product?.images[0]?.src ||
+  //   "/assets/img/detail-page/card-f.png";
+  // const backImageSrc =
+  //   variationData?.images?.[1]?.src ||
+  //   product?.images[1]?.src ||
+  //   "/assets/img/detail-page/card-b.jpg";
 
   const handleAddToCart = async (e: Event) => {
     e.preventDefault();
@@ -154,7 +224,7 @@ const ProductDetail = ({ hostName, slug }: ProductDetailProps) => {
               <div className="flex flex-col md:flex-row items-center justify-center gap-8 mb-12">
                 <div className="max-w-lg relative group">
                   <Image
-                    src={frontImageSrc}
+                    src={cardFront}
                     height={300}
                     width={300}
                     alt="Card Front Preview"
@@ -188,7 +258,7 @@ const ProductDetail = ({ hostName, slug }: ProductDetailProps) => {
 
                 <div className="max-w-lg relative">
                   <Image
-                    src={backImageSrc}
+                    src={cardBack}
                     height={300}
                     width={300}
                     alt="Card Back Preview"
@@ -199,19 +269,13 @@ const ProductDetail = ({ hostName, slug }: ProductDetailProps) => {
                       <>
                         <div className="lx-card-name mb-2">
                           <label htmlFor="card-name">Card Name</label>
-                          <p
-                            id="cardName-b"
-                            className="uppercase text-lg sm:text-xl"
-                          >
+                          <p id="cardName-b" className="uppercase text-lg sm:text-xl">
                             {name}
                           </p>
                         </div>
                         <div className="lx-card-number">
                           <label htmlFor="card-number">Card Number</label>
-                          <p
-                            id="cardNumber-b"
-                            className="uppercase text-lg sm:text-xl"
-                          >
+                          <p id="cardNumber-b" className="uppercase text-lg sm:text-xl">
                             {number}
                           </p>
                         </div>
@@ -220,171 +284,59 @@ const ProductDetail = ({ hostName, slug }: ProductDetailProps) => {
                   </div>
                 </div>
               </div>
-              
 
-              {/* Variation Selector */}
-              <div className="max-w-xl mx-auto mb-8">
-                <label
-                  htmlFor="variation-select"
-                  className="block mb-2 font-medium text-gray-800"
-                >
-                  Choose a Metal Finish:
-                </label>
-                <select
-                  id="variation-select"
-                  value={selectedVariation || ""}
-                  onChange={handleVariationChange}
-                  className="w-full p-3 bg-white text-gray-900 rounded-lg border border-gray-300 focus:outline-none focus:border-yellow-500"
-                >
-                  <option value="" disabled>
-                    Select a finish
-                  </option>
-                  {attributeOptions.map((option: string, index: number) => (
-                    <option key={index} value={variationIds[index]}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-                
-                <div className=" grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-5 mt-4 relative h-[100%] ">
-                  <div
-                    className="flex flex-col items-center justify-center rounded-md p-4 transition duration-300 hover:bg-opacity-80 cursor-pointer relative"
-                    style={{ backgroundColor: "rgb(212, 175, 55)" }}
-                  >
-                    <div className="absolute right-[-8px] top-[-10px] bg-[#bc8c54] rounded-full border-2 border-white p-[1px] hidden">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        className="w-5 h-5 text-white"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    </div>
-                    <p className="text-center w-min px-3 mx-auto py-1 mb-2 bg-black rounded-full text-white text-xs font-semibold text-nowrap">
-                      AED 25
-                    </p>
-                    <p className="text-center text-sm text-gray-600">
-                      Brushed Gold
-                    </p>
-                  </div>
-                  <div
-                    className="flex flex-col items-center justify-center rounded-md p-4 transition duration-300 hover:bg-opacity-80 cursor-pointer relative"
-                    style={{ backgroundColor: "rgb(74, 74, 74)" }}
-                  >
-                    <div className="absolute right-[-8px] top-[-10px] bg-[#bc8c54] rounded-full border-2 border-white p-[1px] hidden">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        className="w-5 h-5 text-white"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    </div>
-                    <p className="text-center w-min px-3 mx-auto py-1 mb-2 bg-black rounded-full text-white text-xs font-semibold text-nowrap">
-                      AED 25
-                    </p>
-                    <p className="text-center text-sm text-gray-300">
-                      Matte Black
-                    </p>
-                  </div>
-                  <div
-                    className="flex flex-col items-center justify-center rounded-md p-4 transition duration-300 hover:bg-opacity-80 cursor-pointer relative"
-                    style={{ backgroundColor: "rgb(0, 188, 212)" }}
-                  >
-                    <div className="absolute right-[-8px] top-[-10px] bg-[#bc8c54] rounded-full border-2 border-white p-[1px] hidden">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        className="w-5 h-5 text-white"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    </div>
-                    <p className="text-center w-min px-3 mx-auto py-1 mb-2 bg-black rounded-full text-white text-xs font-semibold text-nowrap">
-                      AED 25
-                    </p>
-                    <p className="text-center text-sm text-gray-600">
-                      Ocean Blue
-                    </p>
-                  </div>
-                  <div
-                    className="flex flex-col items-center justify-center rounded-md p-4 transition duration-300 hover:bg-opacity-80 cursor-pointer relative"
-                    style={{ backgroundColor: "rgb(149, 165, 166)" }}
-                  >
-                    <div className="absolute right-[-8px] top-[-10px] bg-[#bc8c54] rounded-full border-2 border-white p-[1px] hidden">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        className="w-5 h-5 text-white"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    </div>
-                    <p className="text-center w-min px-3 mx-auto py-1 mb-2 bg-black rounded-full text-white text-xs font-semibold text-nowrap">
-                      AED 25
-                    </p>
-                    <p className="text-center text-sm text-gray-300">
-                      Brushed Silver
-                    </p>
-                  </div>
-                  <div
-                    className="flex flex-col items-center justify-center rounded-md p-4 transition duration-300 hover:bg-opacity-80 cursor-pointer relative"
-                    style={{ backgroundColor: "rgb(52, 152, 219)" }}
-                  >
-                    <div className="absolute right-[-8px] top-[-10px] bg-[#bc8c54] rounded-full border-2 border-white p-[1px] hidden">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        className="w-5 h-5 text-white"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                    </div>
-                    <p className="text-center w-min px-3 mx-auto py-1 mb-2 bg-black rounded-full text-white text-xs font-semibold text-nowrap">
-                      AED 25
-                    </p>
-                    <p className="text-center text-sm text-gray-600">
-                      Sky Blue
-                    </p>
-                  </div>
-                </div>
+              {allVariations && (
+                <>
+                  {/* Variation Selector */}
+                  <div className="max-w-3xl mx-auto mb-8">
+                    <label
+                      htmlFor="variation-select"
+                      className="block mb-2 font-medium text-gray-800"
+                    >
+                      Choose a Metal Finish:
+                    </label>
+                    <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 gap-2">
+                      {allVariations ? (
+                        allVariations.map((variation) => (
+                          <div
+                            key={variation.id}
+                            className={`bg-white p-3 rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer ${selectedVariationId === variation.id ? "border-2 border-primary box-border" : ""}`}
+                            onClick={() => handleVariationChange(variation.id)} // Set the selected item
+                            style={{ boxSizing: "border-box" }} // Ensure border is inside the box sizing
+                          >
 
-              </div>
+                            <div className="relative w-full h-20 mb-1">
+                              <Image
+                                src={variation.images[0].src}
+                                alt={variation.name}
+                                layout="fill"
+                                objectFit="cover"
+                                className="rounded-md"
+                              />
+                            </div>
+                            <h3 className="text-center font-semibold text-[13px] text-gray-800">
+                              {variation.name.split('-')[1]}
+                            </h3>
+                          </div>
+                        ))
+                      ) : (
+                        // Skeleton loader when `allVariations` is not yet available
+                        Array.from({ length: 8 }).map((_, index) => (
+                          <div key={index} className="bg-white p-2 rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
+                            <div className="relative w-full h-20 mb-1">
+                              <LoadingSkeleton width="100%" height="100%" variant="rectangular" />
+                            </div>
+                            <LoadingSkeleton width="60%" height={20} className="mx-auto mt-2" />
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                  </div>
+                </>
+              )}
+
+
 
 
 
@@ -423,7 +375,7 @@ const ProductDetail = ({ hostName, slug }: ProductDetailProps) => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   maxLength={30}
-                  // required=""
+                // required=""
                 />
               </div>
               {/* Card Number Input (Optional) */}
@@ -447,7 +399,7 @@ const ProductDetail = ({ hostName, slug }: ProductDetailProps) => {
                     className="form-radio text-[#aa8453] h-5 w-5"
                     value={"front"}
                     onChange={() => setSide("front")}
-                    // defaultChecked=""
+                  // defaultChecked=""
                   />
                   <span className="ml-3 text-gray-900">Front of Card</span>
                 </label>
