@@ -42,6 +42,7 @@ const CustomizationSection = ({ hostName, slug }) => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [allVariations, setAllVariations] = useState<any>(null);
+  const [selectedVariationId, setSelectedVariationId] = useState(null);
   const [isDragging, setIsDragging] = useState({
     name: false,
     optional: false,
@@ -205,6 +206,7 @@ const CustomizationSection = ({ hostName, slug }) => {
 
 
   const handleVariationChange = async (id) => {
+    setSelectedVariationId(id);
     const selectedVariation = allVariations.find(variation => variation.id === id);
     setCardFront(selectedVariation?.galleryImages[0]?.url ||
       product?.images[0]?.src ||
@@ -773,9 +775,11 @@ const CustomizationSection = ({ hostName, slug }) => {
                     allVariations.map((variation) => (
                       <div
                         key={variation.id}
-                        className="bg-white p-3 rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
-                        onClick={() => handleVariationChange(variation.id)}
+                        className={`bg-white p-3 rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer ${selectedVariationId === variation.id ? "border-2 border-primary box-border" : ""}`}
+                        onClick={() => handleVariationChange(variation.id)} // Set the selected item
+                        style={{ boxSizing: "border-box" }} // Ensure border is inside the box sizing
                       >
+
                         <div className="relative w-full h-20 mb-1">
                           <Image
                             src={variation.images[0].src}
