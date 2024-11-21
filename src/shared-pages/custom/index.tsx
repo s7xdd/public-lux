@@ -309,6 +309,9 @@ const CustomizationSection = ({ hostName, slug }) => {
       case 'topnumber':
         setIsVisibleTopNumber((prev) => !prev)
         break;
+      case 'image':
+        setIsVisibleImage((prev) => !prev)
+        break;
       default:
         break;
     }
@@ -528,6 +531,7 @@ const CustomizationSection = ({ hostName, slug }) => {
                       className="w-full h-300 object-cover object-center shadow-lg border border-gray-300 rounded-lg"
                     />
                     <div
+                      onClick={() => handleTextClick('image')}
                       ref={imageRef}
                       style={{
                         position: "absolute",
@@ -539,7 +543,7 @@ const CustomizationSection = ({ hostName, slug }) => {
                         overflow: "hidden", // Prevents image from overflowing outside the container
                       }}
                     >
-                      {image &&  (
+                      {image && (
                         <Image
                           src={image}
                           alt="Uploaded Preview"
@@ -638,7 +642,7 @@ const CustomizationSection = ({ hostName, slug }) => {
 
 
                     {/* Moveable components to handle drag, scale, and rotate interactions for each item */}
-                    {image && (
+                    {image && isVisibleImage && (
                       <Moveable
                         target={imageRef.current}
                         draggable={true}
