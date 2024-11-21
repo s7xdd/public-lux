@@ -233,7 +233,7 @@ const ProductDetail = ({ hostName, slug }: ProductDetailProps) => {
                   <div className="absolute bottom-[6px] left-[25px]">
                     {side === "front" && (
                       <>
-                        <div className="mb-2">
+                        <div className="">
                           <label htmlFor="card-name">Card Name</label>
                           <p
                             id="cardName-f"
@@ -267,8 +267,8 @@ const ProductDetail = ({ hostName, slug }: ProductDetailProps) => {
                   <div className="lx-card-info-b absolute bottom-[6px] left-[25px]">
                     {side === "back" && (
                       <>
-                        <div className="lx-card-name mb-2">
-                          <label htmlFor="card-name">Card Name</label>
+                        <div className="">
+                          <label htmlFor="card-name">Name</label>
                           <p id="cardName-b" className="uppercase text-lg sm:text-xl">
                             {name}
                           </p>
@@ -341,7 +341,7 @@ const ProductDetail = ({ hostName, slug }: ProductDetailProps) => {
 
 
               {/* Display Selected Variation Details */}
-              {variationData && (
+              {/* {variationData && (
                 <div className="max-w-lg mx-auto bg-gray-100 p-0 rounded-lg shadow-md flex flex-col items-center">
                   <h3 className="text-lg font-semibold text-gray-800">
                     Selected Card Details:
@@ -353,7 +353,7 @@ const ProductDetail = ({ hostName, slug }: ProductDetailProps) => {
                     DHS
                   </p>
                 </div>
-              )}
+              )} */}
             </div>
           )}
           <div className="bg-gray-100 p-8 rounded-lg shadow-lg max-w-lg mx-auto">
