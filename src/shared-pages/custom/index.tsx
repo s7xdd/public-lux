@@ -114,7 +114,7 @@ const CustomizationSection = ({ hostName, slug }) => {
         setCardFront(
           retVal.images[0]?.src || "/assets/img/detail-page/card-f.png"
         );
-        setCardBack(retVal.images[1]?.src || "/assets/img/detail-page/card-b.png")
+        setCardBack(retVal.images[1]?.src || "/assets/img/detail-page/card-b.jpg")
         console.log(retVal)
       } catch (err) {
         console.error("Error fetching product:", err);
@@ -486,7 +486,7 @@ const CustomizationSection = ({ hostName, slug }) => {
 
           {/* Card area for displaying the card */}
           <div className="h-full min-h-[500px] flex items-center justify-center flex-col relative">
-            <div id="captureContainer" className="flex flex-col md:flex-row items-center justify-center gap-8 mb-12 ">
+            <div id="captureContainer" className="flex flex-col overflow-hidden md:flex-row items-center justify-center gap-8 mb-12 ">
               {loading ? (
                 <div>loading</div>
               ) : (
@@ -545,7 +545,7 @@ const CustomizationSection = ({ hostName, slug }) => {
                         overflow: "hidden", // Prevents image from overflowing outside the container
                       }}
                     >
-                      {image && (
+                      {image && customLogo && (
                         <Image
                           src={image}
                           alt="Uploaded Preview"
