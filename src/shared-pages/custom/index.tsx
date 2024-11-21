@@ -33,6 +33,7 @@ const CustomizationSection = ({ hostName, slug }) => {
   const [isVisibleOptional, setIsVisibleOptional] = useState(false);
   const [isVisibleNumber, setIsVisibleNumber] = useState(false);
   const [isVisibleTopNumber, setIsVisibleTopNumber] = useState(false)
+  const [isVisibleImage, setIsVisibleImage] = useState(false);
   const [isCardFlipped, setIsCardFlipped] = useState(false);
   const [cardPlacement, setCardPlacement] = useState<'front' | 'back'>('front');
   const [customLogo, setCustomLogo] = useState(false);
@@ -46,6 +47,7 @@ const CustomizationSection = ({ hostName, slug }) => {
     optional: false,
     number: false,
     topnumber: false,
+    image: false,
   });
   const [inputValues, setInputValues] = useState({
     name: "",
@@ -88,6 +90,9 @@ const CustomizationSection = ({ hostName, slug }) => {
     }
     if (targetRef4.current && !targetRef4.current.contains(e.target as Node)) {
       setIsVisibleTopNumber(false);
+    }
+    if (imageRef.current && !imageRef.current.contains(e.target as Node)) {
+      setIsVisibleImage(false);
     }
   };
 
@@ -256,7 +261,7 @@ const CustomizationSection = ({ hostName, slug }) => {
       ...prevValues,
       [text]: {
         ...prevValues[text],
-        scale: e.scale[0], 
+        scale: e.scale[0],
       },
     }));
   };
@@ -522,20 +527,20 @@ const CustomizationSection = ({ hostName, slug }) => {
                       alt="Card Front Preview"
                       className="w-full h-300 object-cover object-center shadow-lg border border-gray-300 rounded-lg"
                     />
-                    {image && (
-                      <div
+                    <div
                         ref={imageRef}
                         style={{
                           position: "absolute",
                           left: elementValues.image.left,
                           top: elementValues.image.top,
                           width: elementValues.image.width,   // This will be dynamically set via scaling
-                          height: elementValues.image.height, // This will be dynamically set via scaling
-                          transform: `rotate(${elementValues.image.rotate}deg)`,
+                          transform: `scale(${elementValues.image.scale}) rotate(${elementValues.image.rotate}deg)`,
                           transformOrigin: "center center", // Ensures rotation is centered
                           overflow: "hidden", // Prevents image from overflowing outside the container
                         }}
                       >
+                    {image && (
+                      
                         <Image
                           src={image}
                           alt="Uploaded Preview"
@@ -545,8 +550,8 @@ const CustomizationSection = ({ hostName, slug }) => {
                             objectFit: "contain", // Or "cover", depending on how you want to fit the image
                           }}
                         />
+                      )}
                       </div>
-                    )}
 
 
                     {/* Draggable text on top of the image */}
@@ -561,10 +566,10 @@ const CustomizationSection = ({ hostName, slug }) => {
                         transform: `scale(${elementValues.name.scale}) rotate(${elementValues.name.rotate}deg)`,
                         color: "white",
                         padding: "8px",
-                        fontSize: `${20 * elementValues.name.scale}px`, 
+                        fontSize: `${20 * elementValues.name.scale}px`,
                         borderRadius: "4px",
                         cursor: "move",
-                        
+
                       }}
                     >
                       {inputValues.name}
@@ -581,7 +586,7 @@ const CustomizationSection = ({ hostName, slug }) => {
                         transform: `scale(${elementValues.optional.scale}) rotate(${elementValues.optional.rotate}deg)`,
                         color: "white",
                         padding: "8px",
-                        fontSize: `${20 * elementValues.optional.scale}px`, 
+                        fontSize: `${20 * elementValues.optional.scale}px`,
                         borderRadius: "4px",
                         cursor: "move",
                       }}
@@ -602,7 +607,7 @@ const CustomizationSection = ({ hostName, slug }) => {
                           transform: `scale(${elementValues.number.scale}) rotate(${elementValues.number.rotate}deg)`,
                           color: "white",
                           padding: "8px",
-                          fontSize: `${20 * elementValues.number.scale}px`, 
+                          fontSize: `${20 * elementValues.number.scale}px`,
                           borderRadius: "4px",
                           cursor: "move",
                         }}
@@ -624,7 +629,7 @@ const CustomizationSection = ({ hostName, slug }) => {
                         transform: `scale(${elementValues.topnumber.scale}) rotate(${elementValues.topnumber.rotate}deg)`,
                         color: "white",
                         padding: "8px",
-                        fontSize: `${20 * elementValues.topnumber.scale}px`, 
+                        fontSize: `${20 * elementValues.topnumber.scale}px`,
                         borderRadius: "4px",
                         cursor: "move",
                       }}
@@ -644,8 +649,10 @@ const CustomizationSection = ({ hostName, slug }) => {
                         onDrag={(e) => handleDrag(e, "image")}
                         onScale={(e) => handleScale(e, "image")}
                         onRotate={(e) => handleRotate(e, "image")}
+                        visible={isDragging.image} // Only visible when it's being dragged
                       />
                     )}
+
 
                     {/* Conditionally render Moveable based on visibility */}
                     {isVisibleName && (
