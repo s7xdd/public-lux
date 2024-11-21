@@ -73,7 +73,7 @@ const CustomizationSection = ({ hostName, slug }) => {
     optional: { left: 40, scale: 1, top: 330, height: 40, rotate: 0 },
     number: { left: 150, scale: 1, top: 250, height: 40, rotate: 0 },
     topnumber: { left: 180, scale: 1, top: 120, height: 40, rotate: 0 },
-    image: { left: 200, scale: 1, top: 150, height: 300, width: 200, rotate: 0 },
+    image: { left: 200, scale: 1, top: 150, height: 200, width: 200, rotate: 0 },
   });
 
 
@@ -528,19 +528,18 @@ const CustomizationSection = ({ hostName, slug }) => {
                       className="w-full h-300 object-cover object-center shadow-lg border border-gray-300 rounded-lg"
                     />
                     <div
-                        ref={imageRef}
-                        style={{
-                          position: "absolute",
-                          left: elementValues.image.left,
-                          top: elementValues.image.top,
-                          width: elementValues.image.width,   // This will be dynamically set via scaling
-                          transform: `scale(${elementValues.image.scale}) rotate(${elementValues.image.rotate}deg)`,
-                          transformOrigin: "center center", // Ensures rotation is centered
-                          overflow: "hidden", // Prevents image from overflowing outside the container
-                        }}
-                      >
-                    {image && (
-                      
+                      ref={imageRef}
+                      style={{
+                        position: "absolute",
+                        left: elementValues.image.left,
+                        top: elementValues.image.top,
+                        width: elementValues.image.width,   // This will be dynamically set via scaling
+                        transform: `scale(${elementValues.image.scale}) rotate(${elementValues.image.rotate}deg)`,
+                        transformOrigin: "center center", // Ensures rotation is centered
+                        overflow: "hidden", // Prevents image from overflowing outside the container
+                      }}
+                    >
+                      {image &&  (
                         <Image
                           src={image}
                           alt="Uploaded Preview"
@@ -551,7 +550,7 @@ const CustomizationSection = ({ hostName, slug }) => {
                           }}
                         />
                       )}
-                      </div>
+                    </div>
 
 
                     {/* Draggable text on top of the image */}
