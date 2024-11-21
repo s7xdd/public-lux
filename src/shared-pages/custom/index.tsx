@@ -17,6 +17,7 @@ import {
 import MoveableHelper from "moveable-helper";
 import html2canvas from "html2canvas";
 import LoadingSkeleton from "@/components/common/card-skeleton";
+import { Label } from "@mui/icons-material";
 
 
 const Moveable = makeMoveable<DraggableProps & ScalableProps & RotatableProps>([
@@ -36,6 +37,7 @@ const CustomizationSection = ({ hostName, slug }) => {
   const [isVisibleImage, setIsVisibleImage] = useState(false);
   const [isCardFlipped, setIsCardFlipped] = useState(false);
   const [cardPlacement, setCardPlacement] = useState<'front' | 'back'>('front');
+  const [logos, setLogos] = useState([]);
   const [customLogo, setCustomLogo] = useState(false);
   const [isBorderVisible, setIsBorderVisible] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
@@ -44,6 +46,7 @@ const CustomizationSection = ({ hostName, slug }) => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [allVariations, setAllVariations] = useState<any>(null);
+  const [formLabels, setFormLabels] = useState([]);
   const [selectedVariationId, setSelectedVariationId] = useState(null);
   const [selectedBorderId, setSelectedBorderId] = useState(null);
   const [displayBorder, setDisplayBorder] = useState(null);
@@ -159,7 +162,11 @@ const CustomizationSection = ({ hostName, slug }) => {
 
   useEffect(() => {
     const fetchAllVariationData = async (variationIds) => {
+
       try {
+        const tempFormLabels = product?.wcpa_form_fields?.wcpaData?.fields?.sec_0671f4cac4b395?.fields;
+        setFormLabels(tempFormLabels)
+
         const variationPromises = variationIds.map(async (variationId) => {
           const apiEndpoint = apiEndpoints.products.productDetails(variationId);
           const variationDetails = await FetchAPIData.fetchAPIData({ apiEndpoint });
@@ -192,7 +199,11 @@ const CustomizationSection = ({ hostName, slug }) => {
 
         const allVariationDetails = await Promise.all(variationPromises);
 
-        let borderImages = [];
+        // console.log(
+        //   formLabels
+        //     .flat()
+        //     .find((label) => label.elementId === "text_1044961101")?.label || 'Default Label'
+        // );
 
         const borderField = product.wcpa_form_fields.wcpaData.fields.sec_0671f4cac4b395.fields
           .flat() // Flatten the array to make it easier to search
@@ -231,7 +242,6 @@ const CustomizationSection = ({ hostName, slug }) => {
 
   const addBorder = (label) => {
     setSelectedBorderId(label);
-
     if (label === 'None') {
       setDisplayBorder(null)
     } else {
@@ -345,6 +355,13 @@ const CustomizationSection = ({ hostName, slug }) => {
         break;
     }
   };
+
+  const getFieldByElementId = (elementId, field = 'label', Default) => {
+    return formLabels
+      .flat()
+      .find((label) => label.elementId === elementId)?.[field] || Default;
+  };
+  
 
   const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCardPlacement(event.target.value as 'front' | 'back');
@@ -789,8 +806,9 @@ const CustomizationSection = ({ hostName, slug }) => {
                   htmlFor="add-borders"
                   className="block pb-3 border-b border-gray-300 text-gray-800 font-semibold mb-2"
                 >
-                  Choose Color
+                  Choose Variant
                 </label>
+
 
                 {/* <select
                   id="variation-select"
@@ -850,7 +868,7 @@ const CustomizationSection = ({ hostName, slug }) => {
               {/* Input for Your Name */}
               <div className="mb-6">
                 <label className="block text-gray-800 font-semibold mb-1">
-                  Your Name
+                {getFieldByElementId("text_1044961101", 'label', "Your Name")}
                 </label>
                 <input
                   type="text"
@@ -865,7 +883,7 @@ const CustomizationSection = ({ hostName, slug }) => {
               {/* Input for Optional Text */}
               <div className="mb-6">
                 <label className="block text-gray-800 font-semibold mb-1">
-                  Optional Text
+                {getFieldByElementId("text-0672336657", 'label', "Optional Text")}
                 </label>
                 {/* <input
                   type="text"
@@ -886,7 +904,7 @@ const CustomizationSection = ({ hostName, slug }) => {
               {/* Input for Card Number (Optional) */}
               <div className="mb-6">
                 <label className="block text-gray-800 font-semibold mb-1">
-                  Card Number (Optional)
+                {getFieldByElementId("number_1044996642", 'label', "Card Number (Optional)")}
                 </label>
                 <input
                   type="text"
@@ -901,7 +919,7 @@ const CustomizationSection = ({ hostName, slug }) => {
               {/* Card Number Placement (Front or Back) */}
               <div className="mb-6">
                 <label className="block text-gray-800 font-semibold mb-4">
-                  Card number placement
+                {getFieldByElementId("radio_7208132280", 'label', "Card Number Placement")}
                 </label>
                 <div className="flex items-center mb-4">
                   <input
@@ -941,7 +959,7 @@ const CustomizationSection = ({ hostName, slug }) => {
               {/* Input for Text on Top of Card (Optional) */}
               <div className="mb-6">
                 <label className="block text-gray-800 font-semibold mb-1">
-                  Text on Top of Card (Optional)
+                  {getFieldByElementId("radio_72081d32280", 'label', "Text on top of card (optional)")}
                 </label>
                 <input
                   type="text"
@@ -959,7 +977,7 @@ const CustomizationSection = ({ hostName, slug }) => {
                   htmlFor="add-borders"
                   className="block text-gray-800 font-semibold mb-4 pb-3 border-b border-gray-300"
                 >
-                  Add Borders (Optional)
+                   {getFieldByElementId("image_2833661161", 'label', "Add Borders")}
                 </label>
                 <div className="lx-colors grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-2 mt-4">
                   {borders.map((border) => (
@@ -990,7 +1008,7 @@ const CustomizationSection = ({ hostName, slug }) => {
                   htmlFor="choose-logo"
                   className="block text-gray-800 font-semibold mb-4 pb-3 border-b border-gray-300"
                 >
-                  Choose Logo
+                  {getFieldByElementId("radio_2580742084", 'label', "Choose Logo")}
                 </label>
                 <div className="lx-colors grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-2">
 
