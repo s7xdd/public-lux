@@ -6,9 +6,10 @@ import Layout from "@/components/layouts";
 import { headers } from "next/headers";
 import { Suspense } from "react";
 import ReactQueryProvider from "@/providers/ReactQueryProvider";
-import ReduxProvider from "@/redux/store-provider";
+
 import NextProgress from "@/components/next-progress";
 import Head from "next/head";
+import ReduxProvider from "@/redux/store-provider";
 
 export const metadata: Metadata = {
   title: "Create Next App",

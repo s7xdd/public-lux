@@ -5,13 +5,15 @@ import { apiEndpoints } from "@/server-api/config/api.endpoints";
 import apiPost from "@/server-api/apifunctions/apipost";
 import { loginValidationSchema } from "@/utils/validation-schema";
 import { loginFormProps } from "@/types/auth/auth-types";
-import useAuth from "@/server-api/hooks/useAuth";
+import { useDispatch } from "react-redux";
+import { clearUser, setUser } from "@/redux/slices/user-slice";
+import { getUser } from "@/storage";
 
 // Define the validation schema
 
 const Login = ({ hostName }: { hostName: string | null }) => {
   const [loading, setLoading] = useState(false);
-  const { user, setLogIn } = useAuth();
+  const dispatch = useDispatch();
 
   const initialValues: loginFormProps = {
     email: "",
@@ -34,22 +36,20 @@ const Login = ({ hostName }: { hostName: string | null }) => {
       };
       const response = await apiPost.postAPI(postAPIValues);
 
-      if(response.token){
-        setLogIn(response.userDetails, response.token);
-      }
-
-      // Make the login request
-      // const response = await axios.post(
-      //   'https://tomsher.co/LUX/wp-json/jwt-auth/v1/token',
-      //   payload,
-      //   {
-      //     headers: {
-      //       'Content-Type': 'application/json',
-      //     },
-      //   }
-      // );
-
+      if (response.token) {
+        const user = {
+          displayName: response.name,
+          token: response.token,
+          email: response.email,
+          user_nicename: response.user_nicename,
+          phone: response.phone,
+          isVerified: response.is_verified,
+        };
+        dispatch(setUser(user)); // Dispatch the setUser action to store user data
+     
       console.log("Login successful:", response);
+
+    }
     } catch (error) {
       console.error("Login failed:", error ? error : error);
     } finally {

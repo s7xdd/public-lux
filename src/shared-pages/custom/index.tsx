@@ -37,12 +37,16 @@ const CustomizationSection = ({ hostName, slug }) => {
   const [isCardFlipped, setIsCardFlipped] = useState(false);
   const [cardPlacement, setCardPlacement] = useState<'front' | 'back'>('front');
   const [customLogo, setCustomLogo] = useState(false);
+  const [isBorderVisible, setIsBorderVisible] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [product, setProduct] = useState<any>(null);
+  const [borders, setBorders] = useState<any>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [allVariations, setAllVariations] = useState<any>(null);
   const [selectedVariationId, setSelectedVariationId] = useState(null);
+  const [selectedBorderId, setSelectedBorderId] = useState(null);
+  const [displayBorder, setDisplayBorder] = useState(null);
   const [isDragging, setIsDragging] = useState({
     name: false,
     optional: false,
@@ -182,12 +186,21 @@ const CustomizationSection = ({ hostName, slug }) => {
             );
           }
 
-          // Add gallery images to variation details
           variationDetails.galleryImages = galleryImages;
           return variationDetails; // Return variation details along with images
         });
 
         const allVariationDetails = await Promise.all(variationPromises);
+
+        let borderImages = [];
+
+        const borderField = product.wcpa_form_fields.wcpaData.fields.sec_0671f4cac4b395.fields
+          .flat() // Flatten the array to make it easier to search
+          .find((field) => field.label === "ADD BORDERS (OPTIONAL)");
+
+        if (borderField && Array.isArray(borderField.values)) {
+          setBorders(borderField.values);
+        }
 
         setAllVariations(allVariationDetails);
         console.log("All Variations with Gallery Images:", allVariationDetails);
@@ -215,6 +228,20 @@ const CustomizationSection = ({ hostName, slug }) => {
       product?.images[1]?.src ||
       "/assets/img/detail-page/card-b.jpg")
   };
+
+  const addBorder = (label) => {
+    setSelectedBorderId(label);
+
+    if (label === 'None') {
+      setDisplayBorder(null)
+    } else {
+      const selectedBorder = borders.find((border) => border.label === label);
+      if (selectedBorder) {
+        setDisplayBorder(selectedBorder.image);
+      }
+    }
+  };
+
 
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -532,6 +559,17 @@ const CustomizationSection = ({ hostName, slug }) => {
                       alt="Card Front Preview"
                       className="w-full h-300 object-cover object-center shadow-lg border border-gray-300 rounded-lg"
                     />
+                    {displayBorder && (
+                      <div
+                        className="absolute top-0 left-0 w-full h-full pointer-events-none"
+                        style={{
+                          backgroundImage: `url(${displayBorder})`,
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                          borderRadius: "inherit",
+                        }}
+                      />
+                    )}
                     <div
                       onClick={() => handleTextClick('image')}
                       ref={imageRef}
@@ -924,25 +962,22 @@ const CustomizationSection = ({ hostName, slug }) => {
                   Add Borders (Optional)
                 </label>
                 <div className="lx-colors grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-2 mt-4">
-                  {[
-                    "brushed-black",
-                    "brushed-black",
-                    "brushed-black",
-                    "brushed-black",
-                  ].map((logo, index) => (
+                  {borders.map((border) => (
                     <div
-                      key={index}
-                      className="aspect-square bg-gray-100 rounded-md p-4 pt-0 transition duration-300 cursor-pointer logo-option border-transparent border-2 hover:border-[#AE9164]"
+                      onClick={() => addBorder(border.label)}
+                      key={border.label}
+                      className={`aspect-square bg-gray-100 rounded-md p-4 pt-0 transition duration-300 cursor-pointer logo-option border-2 
+                        ${selectedBorderId === border.label ? 'border-[#AE9164]' : 'border-transparent'} hover:border-[#AE9164]`}
                     >
                       <Image
-                        src={`/assets/img/${index + 1}.png`}
+                        src={border.image}
                         height={20}
                         width={20}
                         alt="Brushed Black Logo"
                         className="w-full h-full object-contain rounded-md lx-card-logo"
                       />
                       <p className="text-center text-sm text-gray-600 truncate">
-                        Brushed Black
+                        {border.label}
                       </p>
                     </div>
                   ))}
