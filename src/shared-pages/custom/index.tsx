@@ -11,13 +11,10 @@ import {
   Rotatable,
   Draggable,
   Scalable,
-  PinchableProps,
-  Pinchable,
 } from "react-moveable";
 import MoveableHelper from "moveable-helper";
 import html2canvas from "html2canvas";
 import LoadingSkeleton from "@/components/common/card-skeleton";
-import { Label } from "@mui/icons-material";
 
 
 const Moveable = makeMoveable<DraggableProps & ScalableProps & RotatableProps>([
@@ -28,7 +25,6 @@ const Moveable = makeMoveable<DraggableProps & ScalableProps & RotatableProps>([
 
 const CustomizationSection = ({ hostName, slug }) => {
   const [image, setImage] = useState<string | null>(null);
-  const [galleryImages, setGalleryImages] = useState([]);
   const [imageName, setImageName] = useState<string | null>(null);
   const [isVisibleName, setIsVisibleName] = useState(false);
   const [isVisibleOptional, setIsVisibleOptional] = useState(false);
@@ -39,7 +35,6 @@ const CustomizationSection = ({ hostName, slug }) => {
   const [cardPlacement, setCardPlacement] = useState<'front' | 'back'>('front');
   const [logos, setLogos] = useState([]);
   const [customLogo, setCustomLogo] = useState(false);
-  const [isBorderVisible, setIsBorderVisible] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [product, setProduct] = useState<any>(null);
   const [borders, setBorders] = useState<any>([]);
@@ -49,6 +44,8 @@ const CustomizationSection = ({ hostName, slug }) => {
   const [formLabels, setFormLabels] = useState([]);
   const [selectedVariationId, setSelectedVariationId] = useState(null);
   const [selectedBorderId, setSelectedBorderId] = useState(null);
+  const [logoFields, setLogoFields] = useState(null);
+  const [selectedLogo, setSelectedLogo] = useState(null)
   const [displayBorder, setDisplayBorder] = useState(null);
   const [isDragging, setIsDragging] = useState({
     name: false,
@@ -207,10 +204,18 @@ const CustomizationSection = ({ hostName, slug }) => {
 
         const borderField = product.wcpa_form_fields.wcpaData.fields.sec_0671f4cac4b395.fields
           .flat() // Flatten the array to make it easier to search
-          .find((field) => field.label === "ADD BORDERS (OPTIONAL)");
+          .find((field) => field.elementId === "image_2833661161");
 
         if (borderField && Array.isArray(borderField.values)) {
           setBorders(borderField.values);
+        }
+
+        const logoField = product.wcpa_form_fields.wcpaData.fields.sec_0671f4cac4b395.fields
+          .flat() // Flatten the array to make it easier to search
+          .find((field) => field.elementId === "radio_2580742084");
+
+        if (logoField && Array.isArray(logoField.values)) {
+          setLogoFields(logoField.values);
         }
 
         setAllVariations(allVariationDetails);
@@ -361,7 +366,7 @@ const CustomizationSection = ({ hostName, slug }) => {
       .flat()
       .find((label) => label.elementId === elementId)?.[field] || Default;
   };
-  
+
 
   const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCardPlacement(event.target.value as 'front' | 'back');
@@ -868,7 +873,7 @@ const CustomizationSection = ({ hostName, slug }) => {
               {/* Input for Your Name */}
               <div className="mb-6">
                 <label className="block text-gray-800 font-semibold mb-1">
-                {getFieldByElementId("text_1044961101", 'label', "Your Name")}
+                  {getFieldByElementId("text_1044961101", 'label', "Your Name")}
                 </label>
                 <input
                   type="text"
@@ -883,7 +888,7 @@ const CustomizationSection = ({ hostName, slug }) => {
               {/* Input for Optional Text */}
               <div className="mb-6">
                 <label className="block text-gray-800 font-semibold mb-1">
-                {getFieldByElementId("text-0672336657", 'label', "Optional Text")}
+                  {getFieldByElementId("text-0672336657", 'label', "Optional Text")}
                 </label>
                 {/* <input
                   type="text"
@@ -904,7 +909,7 @@ const CustomizationSection = ({ hostName, slug }) => {
               {/* Input for Card Number (Optional) */}
               <div className="mb-6">
                 <label className="block text-gray-800 font-semibold mb-1">
-                {getFieldByElementId("number_1044996642", 'label', "Card Number (Optional)")}
+                  {getFieldByElementId("number_1044996642", 'label', "Card Number (Optional)")}
                 </label>
                 <input
                   type="text"
@@ -919,7 +924,7 @@ const CustomizationSection = ({ hostName, slug }) => {
               {/* Card Number Placement (Front or Back) */}
               <div className="mb-6">
                 <label className="block text-gray-800 font-semibold mb-4">
-                {getFieldByElementId("radio_7208132280", 'label', "Card Number Placement")}
+                  {getFieldByElementId("radio_7208132280", 'label', "Card Number Placement")}
                 </label>
                 <div className="flex items-center mb-4">
                   <input
@@ -977,7 +982,7 @@ const CustomizationSection = ({ hostName, slug }) => {
                   htmlFor="add-borders"
                   className="block text-gray-800 font-semibold mb-4 pb-3 border-b border-gray-300"
                 >
-                   {getFieldByElementId("image_2833661161", 'label', "Add Borders")}
+                  {getFieldByElementId("image_2833661161", 'label', "Add Borders")}
                 </label>
                 <div className="lx-colors grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-2 mt-4">
                   {borders.map((border) => (
@@ -1010,10 +1015,34 @@ const CustomizationSection = ({ hostName, slug }) => {
                 >
                   {getFieldByElementId("radio_2580742084", 'label', "Choose Logo")}
                 </label>
-                <div className="lx-colors grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-2">
+                <div className="lx-colors grid grid-cols-1 gap-2">
+
+                  {logoFields && logoFields.map((logo) => (
+                    <label
+                      key={logo.label}
+                      htmlFor={logo.label}
+                      className={`flex items-center p-4 mb-2 border rounded-lg cursor-pointer transition-all duration-200 
+                      ${selectedLogo === logo.label ? 'bg-gray-200 border-blue-500' : 'border-gray-300 hover:bg-gray-100'}`}
+                    >
+                      <input
+                        type="radio"
+                        id={logo.label}
+                        name={logo.label}
+                        value={logo.value}
+                        checked={selectedLogo === logo.value}
+                        onChange={() => {
+                          setSelectedLogo(logo.value)
+                          console.log(logo.value)
+                        }}
+                        className="mr-3 h-5 w-5 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                      />
+                      <span className="text-gray-800 font-medium">{logo.label}</span>
+                    </label>
+                  ))}
+
 
                   {/* Logo Options */}
-                  <div
+                  {/* <div
                     className="aspect-square bg-gray-100 rounded-md p-4 pt-0 transition duration-300 cursor-pointer logo-option border-transparent border-2 hover:border-[#AE9164]"
                     onClick={() => setCustomLogo(false)}>
                     <Image
@@ -1026,9 +1055,9 @@ const CustomizationSection = ({ hostName, slug }) => {
                     <p className="text-center text-sm text-gray-600 truncate">
                       None
                     </p>
-                  </div>
+                  </div> */}
 
-                  <div
+                  {/* <div
                     className="logo-option bg-gray-100 lx-card-logo cursor-pointer p-4 pt-0 rounded-lg flex-1 text-center transition duration-200 border-transparent border-2 hover:border-[#AE9164] relative"
                     onClick={() => setCustomLogo(true)}
                   >
@@ -1045,9 +1074,11 @@ const CustomizationSection = ({ hostName, slug }) => {
                     <p className="mt-4 text-center text-sm text-gray-600">
                       Custom Logo
                     </p>
-                  </div>
+                  </div> */}
+
+
                 </div>
-                {customLogo && (
+                {selectedLogo && selectedLogo === '"Upload own logo"' && (
                   <div>
                     {/* File input */}
                     <input
