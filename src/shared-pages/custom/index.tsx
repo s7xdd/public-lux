@@ -605,7 +605,7 @@ const CustomizationSection = ({ hostName, slug }) => {
                         overflow: "hidden", // Prevents image from overflowing outside the container
                       }}
                     >
-                      {image && customLogo && (
+                      {image && (selectedLogo === "Upload own logo" || selectedLogo === "Upload own design") && (
                         <Image
                           src={image}
                           alt="Uploaded Preview"
@@ -876,10 +876,10 @@ const CustomizationSection = ({ hostName, slug }) => {
                   {getFieldByElementId("text_1044961101", 'label', "Your Name")}
                 </label>
                 <input
-                  type="text"
+                  type= {getFieldByElementId("text_1044961101", 'type', "Text")}
                   name="name"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AE9164] focus:border-[#AE9164] placeholder-gray-400"
-                  placeholder="Your name"
+                  placeholder={getFieldByElementId("text_1044961101", 'placeholder', "Text")}
                   value={inputValues.name}
                   onChange={handleInputChange}
                 />
@@ -896,10 +896,10 @@ const CustomizationSection = ({ hostName, slug }) => {
                 /> */}
 
                 <input
-                  type="text"
+                  type={getFieldByElementId("text-0672336657", 'type', "Text")}
                   name="optional"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AE9164] focus:border-[#AE9164] placeholder-gray-400"
-                  placeholder="Optional text"
+                  placeholder={getFieldByElementId("text-0672336657", 'placeholder', "Optional Text")}
                   value={inputValues.optional}
                   onChange={handleInputChange}
                 />
@@ -912,10 +912,10 @@ const CustomizationSection = ({ hostName, slug }) => {
                   {getFieldByElementId("number_1044996642", 'label', "Card Number (Optional)")}
                 </label>
                 <input
-                  type="text"
+                  type={getFieldByElementId("number_1044996642", 'text', "text")}
                   name="number"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AE9164] focus:border-[#AE9164] placeholder-gray-400"
-                  placeholder="Enter card number"
+                  placeholder={getFieldByElementId("number_1044996642", 'placeholder', "Card Number")}
                   value={inputValues.number}
                   onChange={handleInputChange}
                 />
@@ -928,7 +928,7 @@ const CustomizationSection = ({ hostName, slug }) => {
                 </label>
                 <div className="flex items-center mb-4">
                   <input
-                    type="radio"
+                    type={getFieldByElementId("radio_7308877337", 'type', "radio-group")}
                     id="no-branding"
                     name="remove-branding"
                     value="front"
@@ -940,6 +940,7 @@ const CustomizationSection = ({ hostName, slug }) => {
                     Front
                   </label>
                 </div>
+
                 <div className="flex items-center">
                   <input
                     type="radio"
@@ -996,14 +997,18 @@ const CustomizationSection = ({ hostName, slug }) => {
                         src={border.image}
                         height={20}
                         width={20}
-                        alt="Brushed Black Logo"
+                        alt="Border"
                         className="w-full h-full object-contain rounded-md lx-card-logo"
                       />
                       <p className="text-center text-sm text-gray-600 truncate">
                         {border.label}
                       </p>
+                      {/* <p className="text-white text-sm bg-black font-semibold border px-4 w-[70px] flex justify-center rounded-full">
+                        +{border.price}
+                      </p> */}
                     </div>
                   ))}
+
                 </div>
               </div>
 
@@ -1021,24 +1026,28 @@ const CustomizationSection = ({ hostName, slug }) => {
                     <label
                       key={logo.label}
                       htmlFor={logo.label}
-                      className={`flex items-center p-4 mb-2 border rounded-lg cursor-pointer transition-all duration-200 
-                      ${selectedLogo === logo.label ? 'bg-gray-200 border-blue-500' : 'border-gray-300 hover:bg-gray-100'}`}
+                      className={`flex items-center justify-between p-4 mb-2 border rounded-lg cursor-pointer transition-all duration-200 
+                ${selectedLogo === logo.value ? 'bg-gray-200 border-primary' : 'border-gray-300 hover:bg-gray-100'}`}
                     >
-                      <input
-                        type="radio"
-                        id={logo.label}
-                        name={logo.label}
-                        value={logo.value}
-                        checked={selectedLogo === logo.value}
-                        onChange={() => {
-                          setSelectedLogo(logo.value)
-                          console.log(logo.value)
-                        }}
-                        className="mr-3 h-5 w-5 text-blue-600 focus:ring-2 focus:ring-blue-500"
-                      />
-                      <span className="text-gray-800 font-medium">{logo.label}</span>
+                      <div className="flex items-center">
+                        <input
+                          type="radio"
+                          id={logo.label}
+                          name="logoSelection"
+                          value={logo.value}
+                          checked={selectedLogo === logo.value}
+                          onChange={() => {
+                            setSelectedLogo(logo.value);
+                            console.log(logo.value);
+                          }}
+                          className="mr-3 h-5 w-5 text-primary focus:ring-2 focus:ring-primary"
+                        />
+                        <span className="text-gray-800 font-medium">{logo.label}</span>
+                      </div>
+                      <span className="text-white bg-black font-semibold border px-4 w-[70px] flex justify-center rounded-full">+{logo.price}</span>
                     </label>
                   ))}
+
 
 
                   {/* Logo Options */}
@@ -1078,7 +1087,7 @@ const CustomizationSection = ({ hostName, slug }) => {
 
 
                 </div>
-                {selectedLogo && selectedLogo === '"Upload own logo"' && (
+                {selectedLogo && (selectedLogo === "Upload own logo" || selectedLogo === "Upload own design") && (
                   <div>
                     {/* File input */}
                     <input
