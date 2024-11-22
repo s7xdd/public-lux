@@ -15,7 +15,6 @@ import {
 import MoveableHelper from "moveable-helper";
 import html2canvas from "html2canvas";
 import LoadingSkeleton from "@/components/common/card-skeleton";
-import { forEach } from "lodash";
 import {
   FormLabels,
   Variation,
@@ -978,7 +977,6 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
                       </p> */}
                     </div>
                   ))}
-
                 </div>
               </div>
 
@@ -1017,6 +1015,8 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
                       <span className="text-white bg-black font-semibold border px-4 w-[70px] flex justify-center rounded-full">+{logo.price}</span>
                     </label>
                   ))}
+
+                  
 
 
 
