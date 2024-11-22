@@ -15,6 +15,16 @@ import {
 import MoveableHelper from "moveable-helper";
 import html2canvas from "html2canvas";
 import LoadingSkeleton from "@/components/common/card-skeleton";
+import { forEach } from "lodash";
+import {
+  FormLabels,
+  Variation,
+  Border,
+  LogoField,
+  CustomizationSectionProps
+} from '@/types/products/custom'
+
+
 
 
 const Moveable = makeMoveable<DraggableProps & ScalableProps & RotatableProps>([
@@ -23,31 +33,38 @@ const Moveable = makeMoveable<DraggableProps & ScalableProps & RotatableProps>([
   Rotatable,
 ]);
 
-const CustomizationSection = ({ hostName, slug }) => {
+const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, slug }) => {
   const [image, setImage] = useState<string | null>(null);
   const [imageName, setImageName] = useState<string | null>(null);
-  const [isVisibleName, setIsVisibleName] = useState(false);
-  const [isVisibleOptional, setIsVisibleOptional] = useState(false);
-  const [isVisibleNumber, setIsVisibleNumber] = useState(false);
-  const [isVisibleTopNumber, setIsVisibleTopNumber] = useState(false)
-  const [isVisibleImage, setIsVisibleImage] = useState(false);
-  const [isCardFlipped, setIsCardFlipped] = useState(false);
-  const [cardPlacement, setCardPlacement] = useState<'front' | 'back'>('front');
-  const [logos, setLogos] = useState([]);
-  const [customLogo, setCustomLogo] = useState(false);
-  const [currentStep, setCurrentStep] = useState(1);
+  const [isVisibleName, setIsVisibleName] = useState<boolean>(false);
+  const [isVisibleOptional, setIsVisibleOptional] = useState<boolean>(false);
+  const [isVisibleNumber, setIsVisibleNumber] = useState<boolean>(false);
+  const [isVisibleTopNumber, setIsVisibleTopNumber] = useState<boolean>(false);
+  const [isVisibleImage, setIsVisibleImage] = useState<boolean>(false);
+  const [isCardFlipped, setIsCardFlipped] = useState<boolean>(false);
+  const [cardPlacement, setCardPlacement] = useState<'Front' | 'Back'>('Front');
+  const [logos, setLogos] = useState<LogoField[]>([]);
+  const [customLogo, setCustomLogo] = useState<boolean>(false);
+  const [currentStep, setCurrentStep] = useState<number>(1);
   const [product, setProduct] = useState<any>(null);
-  const [borders, setBorders] = useState<any>([]);
+  const [borders, setBorders] = useState<Border[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [allVariations, setAllVariations] = useState<any>(null);
-  const [formLabels, setFormLabels] = useState([]);
-  const [selectedVariationId, setSelectedVariationId] = useState(null);
-  const [selectedBorderId, setSelectedBorderId] = useState(null);
-  const [logoFields, setLogoFields] = useState(null);
-  const [selectedLogo, setSelectedLogo] = useState(null)
-  const [displayBorder, setDisplayBorder] = useState(null);
-  const [isDragging, setIsDragging] = useState({
+  const [allVariations, setAllVariations] = useState<Variation[] | null>(null);
+  const [formLabels, setFormLabels] = useState<FormLabels[]>([]);
+  const [selectedVariationId, setSelectedVariationId] = useState<string | null>(null);
+  const [selectedBorderId, setSelectedBorderId] = useState<string | null>(null);
+  const [logoFields, setLogoFields] = useState<LogoField[] | null>(null);
+  const [cardPlacementFields, setCardPlacementFields] = useState<any>(null);
+  const [selectedLogo, setSelectedLogo] = useState<string | null>(null);
+  const [displayBorder, setDisplayBorder] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState<{
+    name: boolean;
+    optional: boolean;
+    number: boolean;
+    topnumber: boolean;
+    image: boolean;
+  }>({
     name: false,
     optional: false,
     number: false,
@@ -55,24 +72,23 @@ const CustomizationSection = ({ hostName, slug }) => {
     image: false,
   });
   const [inputValues, setInputValues] = useState({
-    name: "",
-    optional: "",
-    number: "",
-    topnumber: "",
+    name: '',
+    optional: '',
+    number: '',
+    topnumber: '',
   });
-  const [cardFront, setCardFront] = useState('')
-  const [cardBack, setCardBack] = useState('')
+  const [cardFront, setCardFront] = useState<string>('');
+  const [cardBack, setCardBack] = useState<string>('');
 
   const [helper] = useState(() => new MoveableHelper());
 
   // Refs for each draggable item
-  const targetRef1 = useRef<HTMLDivElement>(null);
-  const targetRef2 = useRef<HTMLDivElement>(null);
-  const targetRef3 = useRef<HTMLDivElement>(null);
-  const targetRef4 = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLDivElement>(null);
+  const targetRef1 = useRef<HTMLDivElement | null>(null);
+  const targetRef2 = useRef<HTMLDivElement | null>(null);
+  const targetRef3 = useRef<HTMLDivElement | null>(null);
+  const targetRef4 = useRef<HTMLDivElement | null>(null);
+  const imageRef = useRef<HTMLDivElement | null>(null);
 
-  // State for tracking position, scale, and rotation of each element
   const [elementValues, setElementValues] = useState({
     name: { left: 40, scale: 1, top: 300, height: 40, width: 100, rotate: 0 },
     optional: { left: 40, scale: 1, top: 330, height: 40, rotate: 0 },
@@ -81,8 +97,6 @@ const CustomizationSection = ({ hostName, slug }) => {
     image: { left: 200, scale: 1, top: 150, height: 200, width: 200, rotate: 0 },
   });
 
-
-  // Check if the click is outside of the elements
   const handleClickOutside = (e: MouseEvent) => {
     if (targetRef1.current && !targetRef1.current.contains(e.target as Node)) {
       setIsVisibleName(false);
@@ -101,28 +115,21 @@ const CustomizationSection = ({ hostName, slug }) => {
     }
   };
 
-
   useEffect(() => {
     if (!slug) {
-      console.error("Product slug is undefined");
+      console.error('Product slug is undefined');
       return;
     }
     const fetchProduct = async () => {
       try {
         const apiEndpoint = apiEndpoints.products.productDetails(slug);
-        const retVal = await FetchAPIData.fetchAPIData(
-          { apiEndpoint },
-        );
+        const retVal = await FetchAPIData.fetchAPIData({ apiEndpoint });
         setProduct(retVal);
-        console.log(retVal)
-        setCardFront(
-          retVal.images[0]?.src || "/assets/img/detail-page/card-f.png"
-        );
-        setCardBack(retVal.images[1]?.src || "/assets/img/detail-page/card-b.jpg")
-        console.log(retVal)
+        setCardFront(retVal.images[0]?.src || '/assets/img/detail-page/card-f.png');
+        setCardBack(retVal.images[1]?.src || '/assets/img/detail-page/card-b.jpg');
       } catch (err) {
-        console.error("Error fetching product:", err);
-        setError("Failed to load product details.");
+        console.error('Error fetching product:', err);
+        setError('Failed to load product details.');
       } finally {
         setLoading(false);
       }
@@ -138,111 +145,90 @@ const CustomizationSection = ({ hostName, slug }) => {
     };
   }, []);
 
-  // // Fetch data for the selected variation
-  // const fetchVariationData = async (variationId) => {
-  //   try {
-  //     const apiEndpoint = apiEndpoints.products.productDetails(variationId);
-  //     const variationDetails = await FetchAPIData.fetchAPIData(
-  //       { apiEndpoint },
-  //     );
-  //     setVariationData(variationDetails);
-  //     return variationDetails; // Return the fetched data
-  //   } catch (err) {
-  //     console.error("Error fetching variation data:", err);
-  //     setError("Failed to load variation details.");
-  //   }
-  // };
+  const fetchAllVariationData = async (variationIds: string[]) => {
+    try {
+      const tempFormLabels = product?.wcpa_form_fields?.wcpaData?.fields?.sec_0671f4cac4b395?.fields;
+      setFormLabels(tempFormLabels || []);
 
-  // Get attribute options from Product data and map them to variations
-  const attributeOptions = product?.attributes[0]?.options || [];
-  const variationIds = product?.variations || [];
+      const variationPromises = variationIds.map(async (variationId) => {
+        const apiEndpoint = apiEndpoints.products.productDetails(variationId);
+        const variationDetails = await FetchAPIData.fetchAPIData({ apiEndpoint });
+
+        let galleryImages = [];
+        const galleryImageIds = variationDetails.meta_data.find(
+          (meta: any) => meta.key === 'woo_variation_gallery_images'
+        )?.value;
+
+        if (Array.isArray(galleryImageIds)) {
+          galleryImages = await Promise.all(
+            galleryImageIds.map(async (imageId: string) => {
+              const apiEndpoint = apiEndpoints.products.productImage(imageId);
+              const response = await FetchAPIData.fetchAPIData({ apiEndpoint });
+
+              return {
+                id: imageId,
+                url: response.source_url,
+                width: response.media_details.width,
+                height: response.media_details.height,
+              };
+            })
+          );
+        }
+
+        variationDetails.galleryImages = galleryImages;
+        return variationDetails;
+      });
+
+      const allVariationDetails = await Promise.all(variationPromises);
+      setAllVariations(allVariationDetails);
+
+      const borderField = product.wcpa_form_fields.wcpaData.fields.sec_0671f4cac4b395.fields
+        .flat()
+        .find((field: any) => field.elementId === 'image_2833661161');
+
+      if (borderField && Array.isArray(borderField.values)) {
+        setBorders(borderField.values);
+      }
+
+      const logoField = product.wcpa_form_fields.wcpaData.fields.sec_0671f4cac4b395.fields
+        .flat()
+        .find((field: any) => field.elementId === 'radio_2580742084');
+
+      if (logoField && Array.isArray(logoField.values)) {
+        setLogoFields(logoField.values);
+      }
+
+      const cardPlacementFields = getFieldByElementId('radio_7208132280', 'values', 'Card Number Placement');
+      if (cardPlacementFields && Array.isArray(cardPlacementFields)) {
+        setCardPlacementFields(cardPlacementFields);
+        console.log("cardPlacementFields", cardPlacementFields)
+      }
+
+    } catch (err) {
+      console.error('Error fetching variation data:', err);
+      setError('Failed to load variation details.');
+    }
+  };
 
   useEffect(() => {
-    const fetchAllVariationData = async (variationIds) => {
-
-      try {
-        const tempFormLabels = product?.wcpa_form_fields?.wcpaData?.fields?.sec_0671f4cac4b395?.fields;
-        setFormLabels(tempFormLabels)
-
-        const variationPromises = variationIds.map(async (variationId) => {
-          const apiEndpoint = apiEndpoints.products.productDetails(variationId);
-          const variationDetails = await FetchAPIData.fetchAPIData({ apiEndpoint });
-
-          let galleryImages = [];
-          const galleryImageIds = variationDetails.meta_data.find(
-            (meta) => meta.key === 'woo_variation_gallery_images'
-          )?.value;
-
-          if (Array.isArray(galleryImageIds)) {
-            // Fetch gallery image details for the variation
-            galleryImages = await Promise.all(
-              galleryImageIds.map(async (imageId) => {
-                const apiEndpoint = apiEndpoints.products.productImage(imageId);
-                const response = await FetchAPIData.fetchAPIData({ apiEndpoint });
-
-                return {
-                  id: imageId,
-                  url: response.source_url,
-                  width: response.media_details.width,
-                  height: response.media_details.height,
-                };
-              })
-            );
-          }
-
-          variationDetails.galleryImages = galleryImages;
-          return variationDetails; // Return variation details along with images
-        });
-
-        const allVariationDetails = await Promise.all(variationPromises);
-
-        // console.log(
-        //   formLabels
-        //     .flat()
-        //     .find((label) => label.elementId === "text_1044961101")?.label || 'Default Label'
-        // );
-
-        const borderField = product.wcpa_form_fields.wcpaData.fields.sec_0671f4cac4b395.fields
-          .flat() // Flatten the array to make it easier to search
-          .find((field) => field.elementId === "image_2833661161");
-
-        if (borderField && Array.isArray(borderField.values)) {
-          setBorders(borderField.values);
-        }
-
-        const logoField = product.wcpa_form_fields.wcpaData.fields.sec_0671f4cac4b395.fields
-          .flat() // Flatten the array to make it easier to search
-          .find((field) => field.elementId === "radio_2580742084");
-
-        if (logoField && Array.isArray(logoField.values)) {
-          setLogoFields(logoField.values);
-        }
-
-        setAllVariations(allVariationDetails);
-        console.log("All Variations with Gallery Images:", allVariationDetails);
-
-      } catch (err) {
-        console.error("Error fetching variation data:", err);
-        setError("Failed to load variation details.");
-      }
-    };
-
     if (product?.variations && product.variations.length > 0) {
       fetchAllVariationData(product.variations);
     }
   }, [product]);
 
-
-
-  const handleVariationChange = async (id) => {
+  const handleVariationChange = (id: string) => {
     setSelectedVariationId(id);
-    const selectedVariation = allVariations.find(variation => variation.id === id);
-    setCardFront(selectedVariation?.galleryImages[0]?.url ||
+    const selectedVariation = allVariations?.find((variation) => variation.id === id);
+    setCardFront(
+      selectedVariation?.galleryImages[0]?.url ||
       product?.images[0]?.src ||
-      "/assets/img/detail-page/card-f.png")
-    setCardBack(selectedVariation?.galleryImages[1]?.url ||
+      '/assets/img/detail-page/card-f.png'
+    );
+    setCardBack(
+      selectedVariation?.galleryImages[1]?.url ||
       product?.images[1]?.src ||
-      "/assets/img/detail-page/card-b.jpg")
+      '/assets/img/detail-page/card-b.jpg'
+    );
   };
 
   const addBorder = (label) => {
@@ -361,7 +347,7 @@ const CustomizationSection = ({ hostName, slug }) => {
     }
   };
 
-  const getFieldByElementId = (elementId, field = 'label', Default) => {
+  const getFieldByElementId = (elementId: string, field: string = 'label', Default: string) => {
     return formLabels
       .flat()
       .find((label) => label.elementId === elementId)?.[field] || Default;
@@ -369,7 +355,7 @@ const CustomizationSection = ({ hostName, slug }) => {
 
 
   const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setCardPlacement(event.target.value as 'front' | 'back');
+    setCardPlacement(event.target.value as 'Front' | 'Back');
   };
 
   const handleSubmit = () => {
@@ -549,7 +535,7 @@ const CustomizationSection = ({ hostName, slug }) => {
                       className="w-full h-300 object-cover object-center shadow-lg border border-gray-300 rounded-lg"
                     />
 
-                    {cardPlacement === 'back' && (
+                    {cardPlacement === "Back" && (
                       <div
                         ref={targetRef3}
                         onClick={() => handleTextClick('number')}
@@ -660,7 +646,7 @@ const CustomizationSection = ({ hostName, slug }) => {
                     </div>
 
 
-                    {cardPlacement === 'front' && (
+                    {cardPlacement === "Front" && (
                       <div
                         ref={targetRef3}
                         onClick={() => handleTextClick('number')}
@@ -789,12 +775,12 @@ const CustomizationSection = ({ hostName, slug }) => {
               )}
             </div>
 
-            {/* Button to switch card front */}
+            {/* Button to switch card Front */}
             <button
               onClick={toggleCard}
               className="bg-primary text-white border border-primary rounded-full py-[13px] px-[32px] font-regular uppercase hover:bg-[#f0dac6] hover:border-[#f0dac6] hover:text-[#343434] absolute bottom-8"
             >
-              Switch front
+              Switch Front
             </button>
           </div>
         </div>
@@ -876,7 +862,7 @@ const CustomizationSection = ({ hostName, slug }) => {
                   {getFieldByElementId("text_1044961101", 'label', "Your Name")}
                 </label>
                 <input
-                  type= {getFieldByElementId("text_1044961101", 'type', "Text")}
+                  type={getFieldByElementId("text_1044961101", 'type', "Text")}
                   name="name"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AE9164] focus:border-[#AE9164] placeholder-gray-400"
                   placeholder={getFieldByElementId("text_1044961101", 'placeholder', "Text")}
@@ -926,40 +912,24 @@ const CustomizationSection = ({ hostName, slug }) => {
                 <label className="block text-gray-800 font-semibold mb-4">
                   {getFieldByElementId("radio_7208132280", 'label', "Card Number Placement")}
                 </label>
-                <div className="flex items-center mb-4">
-                  <input
-                    type={getFieldByElementId("radio_7308877337", 'type', "radio-group")}
-                    id="no-branding"
-                    name="remove-branding"
-                    value="front"
-                    className="mr-2 focus:ring-[#AE9164] text-[#b88c4f]"
-                    checked={cardPlacement === 'front'}
-                    onChange={handleRadioChange}
-                  />
-                  <label htmlFor="no-branding" className="text-gray-800 m-0">
-                    Front
-                  </label>
-                </div>
+                {cardPlacementFields && cardPlacementFields.map((field) => (
+                  <div key={field.label} className="flex items-center mb-4">
+                    <input
+                      type="radio"
+                      id={field.label}
+                      name="card-placement" // ensure the same name for grouping
+                      value={field.value}
+                      className="mr-2 focus:ring-[#AE9164] text-[#b88c4f]"
+                      checked={cardPlacement === field.value} // set checked based on cardPlacement
+                      onChange={handleRadioChange}
+                    />
+                    <label htmlFor={field.label} className="text-gray-800 m-0">
+                      {field.label}
+                    </label>
+                  </div>
+                ))}
 
-                <div className="flex items-center">
-                  <input
-                    type="radio"
-                    id="yes-branding"
-                    name="remove-branding"
-                    value="back"
-                    className="mr-2 focus:ring-[#AE9164] text-[#b88c4f]"
-                    checked={cardPlacement === 'back'}
-                    onChange={handleRadioChange}
-                  />
-                  <label htmlFor="yes-branding" className="text-gray-800 m-0">
-                    Back (+10)
-                  </label>
-                  {cardPlacement === 'back' && (
-                    <span className="ml-2 bg-black text-white text-sm font-bold px-2 py-1 rounded-full">
-                      $10.00
-                    </span>
-                  )}
-                </div>
+
               </div>
 
               {/* Input for Text on Top of Card (Optional) */}
@@ -1219,9 +1189,9 @@ const CustomizationSection = ({ hostName, slug }) => {
                       type="radio"
                       id="no-branding"
                       name="remove-branding"
-                      value="front"
+                      value="Front"
                       className="mr-2 focus:ring-[#AE9164] text-[#b88c4f]"
-                      checked={cardPlacement === "front"}
+                      checked={cardPlacement === "Front"}
                       onChange={handleRadioChange}
                     />
                     <label htmlFor="no-branding" className="text-gray-800 m-0">
@@ -1233,15 +1203,15 @@ const CustomizationSection = ({ hostName, slug }) => {
                       type="radio"
                       id="yes-branding"
                       name="remove-branding"
-                      value="back"
+                      value="Back"
                       className="mr-2 focus:ring-[#AE9164] text-[#b88c4f]"
-                      checked={cardPlacement === "back"}
+                      checked={cardPlacement === "Back"}
                       onChange={handleRadioChange}
                     />
                     <label htmlFor="yes-branding" className="text-gray-800 m-0">
                       Back (+10)
                     </label>
-                    {cardPlacement === "back" && (
+                    {cardPlacement === "Back" && (
                       <span className="ml-2 bg-black text-white text-sm font-bold px-2 py-1 rounded-full">$10.00</span>
                     )}
                   </div>
