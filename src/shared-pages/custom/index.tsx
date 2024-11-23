@@ -20,11 +20,8 @@ import {
   Variation,
   Border,
   LogoField,
-  CustomizationSectionProps
-} from '@/types/products/custom'
-
-
-
+  CustomizationSectionProps,
+} from "@/types/products/custom";
 
 const Moveable = makeMoveable<DraggableProps & ScalableProps & RotatableProps>([
   Draggable,
@@ -32,7 +29,10 @@ const Moveable = makeMoveable<DraggableProps & ScalableProps & RotatableProps>([
   Rotatable,
 ]);
 
-const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, slug }) => {
+const CustomizationSection: React.FC<CustomizationSectionProps> = ({
+  hostName,
+  slug,
+}) => {
   const [image, setImage] = useState<string | null>(null);
   const [imageName, setImageName] = useState<string | null>(null);
   const [isVisibleName, setIsVisibleName] = useState<boolean>(false);
@@ -41,7 +41,7 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
   const [isVisibleTopNumber, setIsVisibleTopNumber] = useState<boolean>(false);
   const [isVisibleImage, setIsVisibleImage] = useState<boolean>(false);
   const [isCardFlipped, setIsCardFlipped] = useState<boolean>(false);
-  const [cardPlacement, setCardPlacement] = useState<'Front' | 'Back'>('Front');
+  const [cardPlacement, setCardPlacement] = useState<"Front" | "Back">("Front");
   const [logos, setLogos] = useState<LogoField[]>([]);
   const [customLogo, setCustomLogo] = useState<boolean>(false);
   const [currentStep, setCurrentStep] = useState<number>(1);
@@ -51,7 +51,9 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
   const [loading, setLoading] = useState<boolean>(true);
   const [allVariations, setAllVariations] = useState<Variation[] | null>(null);
   const [formLabels, setFormLabels] = useState<FormLabels[]>([]);
-  const [selectedVariationId, setSelectedVariationId] = useState<string | null>(null);
+  const [selectedVariationId, setSelectedVariationId] = useState<string | null>(
+    null
+  );
   const [selectedBorderId, setSelectedBorderId] = useState<string | null>(null);
   const [logoFields, setLogoFields] = useState<LogoField[] | null>(null);
   const [cardPlacementFields, setCardPlacementFields] = useState<any>(null);
@@ -71,13 +73,13 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
     image: false,
   });
   const [inputValues, setInputValues] = useState({
-    name: '',
-    optional: '',
-    number: '',
-    topnumber: '',
+    name: "",
+    optional: "",
+    number: "",
+    topnumber: "",
   });
-  const [cardFront, setCardFront] = useState<string>('');
-  const [cardBack, setCardBack] = useState<string>('');
+  const [cardFront, setCardFront] = useState<string>("");
+  const [cardBack, setCardBack] = useState<string>("");
 
   const [helper] = useState(() => new MoveableHelper());
 
@@ -93,7 +95,14 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
     optional: { left: 40, scale: 1, top: 330, height: 40, rotate: 0 },
     number: { left: 150, scale: 1, top: 250, height: 40, rotate: 0 },
     topnumber: { left: 180, scale: 1, top: 120, height: 40, rotate: 0 },
-    image: { left: 200, scale: 1, top: 150, height: 200, width: 200, rotate: 0 },
+    image: {
+      left: 200,
+      scale: 1,
+      top: 150,
+      height: 200,
+      width: 200,
+      rotate: 0,
+    },
   });
 
   const handleClickOutside = (e: MouseEvent) => {
@@ -116,7 +125,7 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
 
   useEffect(() => {
     if (!slug) {
-      console.error('Product slug is undefined');
+      console.error("Product slug is undefined");
       return;
     }
     const fetchProduct = async () => {
@@ -124,11 +133,15 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
         const apiEndpoint = apiEndpoints.products.productDetails(slug);
         const retVal = await FetchAPIData.fetchAPIData({ apiEndpoint });
         setProduct(retVal);
-        setCardFront(retVal.images[0]?.src || '/assets/img/detail-page/card-f.png');
-        setCardBack(retVal.images[1]?.src || '/assets/img/detail-page/card-b.jpg');
+        setCardFront(
+          retVal.images[0]?.src || "/assets/img/detail-page/card-f.png"
+        );
+        setCardBack(
+          retVal.images[1]?.src || "/assets/img/detail-page/card-b.jpg"
+        );
       } catch (err) {
-        console.error('Error fetching product:', err);
-        setError('Failed to load product details.');
+        console.error("Error fetching product:", err);
+        setError("Failed to load product details.");
       } finally {
         setLoading(false);
       }
@@ -138,24 +151,27 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
   }, [slug, hostName]);
 
   useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside); // Cleanup on component unmount
+      document.removeEventListener("mousedown", handleClickOutside); // Cleanup on component unmount
     };
   }, []);
 
   const fetchAllVariationData = async (variationIds: string[]) => {
     try {
-      const tempFormLabels = product?.wcpa_form_fields?.wcpaData?.fields?.sec_0671f4cac4b395?.fields;
+      const tempFormLabels =
+        product?.wcpa_form_fields?.wcpaData?.fields?.sec_0671f4cac4b395?.fields;
       setFormLabels(tempFormLabels || []);
 
       const variationPromises = variationIds.map(async (variationId) => {
         const apiEndpoint = apiEndpoints.products.productDetails(variationId);
-        const variationDetails = await FetchAPIData.fetchAPIData({ apiEndpoint });
+        const variationDetails = await FetchAPIData.fetchAPIData({
+          apiEndpoint,
+        });
 
         let galleryImages = [];
         const galleryImageIds = variationDetails.meta_data.find(
-          (meta: any) => meta.key === 'woo_variation_gallery_images'
+          (meta: any) => meta.key === "woo_variation_gallery_images"
         )?.value;
 
         if (Array.isArray(galleryImageIds)) {
@@ -181,31 +197,36 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
       const allVariationDetails = await Promise.all(variationPromises);
       setAllVariations(allVariationDetails);
 
-      const borderField = product.wcpa_form_fields.wcpaData.fields.sec_0671f4cac4b395.fields
-        .flat()
-        .find((field: any) => field.elementId === 'image_2833661161');
+      const borderField =
+        product.wcpa_form_fields.wcpaData.fields.sec_0671f4cac4b395.fields
+          .flat()
+          .find((field: any) => field.elementId === "image_2833661161");
 
       if (borderField && Array.isArray(borderField.values)) {
         setBorders(borderField.values);
       }
 
-      const logoField = product.wcpa_form_fields.wcpaData.fields.sec_0671f4cac4b395.fields
-        .flat()
-        .find((field: any) => field.elementId === 'radio_2580742084');
+      const logoField =
+        product.wcpa_form_fields.wcpaData.fields.sec_0671f4cac4b395.fields
+          .flat()
+          .find((field: any) => field.elementId === "radio_2580742084");
 
       if (logoField && Array.isArray(logoField.values)) {
         setLogoFields(logoField.values);
       }
 
-      const cardPlacementFields = getFieldByElementId('radio_7208132280', 'values', 'Card Number Placement');
+      const cardPlacementFields = getFieldByElementId(
+        "radio_7208132280",
+        "values",
+        "Card Number Placement"
+      );
       if (cardPlacementFields && Array.isArray(cardPlacementFields)) {
         setCardPlacementFields(cardPlacementFields);
-        console.log("cardPlacementFields", cardPlacementFields)
+        console.log("cardPlacementFields", cardPlacementFields);
       }
-
     } catch (err) {
-      console.error('Error fetching variation data:', err);
-      setError('Failed to load variation details.');
+      console.error("Error fetching variation data:", err);
+      setError("Failed to load variation details.");
     }
   };
 
@@ -217,23 +238,25 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
 
   const handleVariationChange = (id: string) => {
     setSelectedVariationId(id);
-    const selectedVariation = allVariations?.find((variation) => variation.id === id);
+    const selectedVariation = allVariations?.find(
+      (variation) => variation.id === id
+    );
     setCardFront(
       selectedVariation?.galleryImages[0]?.url ||
-      product?.images[0]?.src ||
-      '/assets/img/detail-page/card-f.png'
+        product?.images[0]?.src ||
+        "/assets/img/detail-page/card-f.png"
     );
     setCardBack(
       selectedVariation?.galleryImages[1]?.url ||
-      product?.images[1]?.src ||
-      '/assets/img/detail-page/card-b.jpg'
+        product?.images[1]?.src ||
+        "/assets/img/detail-page/card-b.jpg"
     );
   };
 
   const addBorder = (label) => {
     setSelectedBorderId(label);
-    if (label === 'None') {
-      setDisplayBorder(null)
+    if (label === "None") {
+      setDisplayBorder(null);
     } else {
       const selectedBorder = borders.find((border) => border.label === label);
       if (selectedBorder) {
@@ -241,8 +264,6 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
       }
     }
   };
-
-
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -297,7 +318,7 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
 
   // Handle Rotate events to update rotation
   const handleRotate = (e: any, text: string) => {
-    setElementValues((prevValues) => ({
+    setElementValues((prevValues: any) => ({
       ...prevValues,
       [text]: {
         ...prevValues[text],
@@ -324,37 +345,42 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
     setIsCardFlipped(!isCardFlipped);
   };
 
-  const handleTextClick = (target) => {
+  const handleTextClick = (target: string) => {
     switch (target) {
-      case 'name':
+      case "name":
         setIsVisibleName((prev) => !prev);
         break;
-      case 'optional':
+      case "optional":
         setIsVisibleOptional((prev) => !prev);
         break;
-      case 'number':
+      case "number":
         setIsVisibleNumber((prev) => !prev);
         break;
-      case 'topnumber':
-        setIsVisibleTopNumber((prev) => !prev)
+      case "topnumber":
+        setIsVisibleTopNumber((prev) => !prev);
         break;
-      case 'image':
-        setIsVisibleImage((prev) => !prev)
+      case "image":
+        setIsVisibleImage((prev) => !prev);
         break;
       default:
         break;
     }
   };
 
-  const getFieldByElementId = (elementId: string, field: string = 'label', Default: string) => {
-    return formLabels
-      .flat()
-      .find((label) => label.elementId === elementId)?.[field] || Default;
+  const getFieldByElementId = (
+    elementId: string,
+    field: string = "label",
+    Default: string
+  ) => {
+    return (
+      formLabels.flat().find((label) => label.elementId === elementId)?.[
+        field
+      ] || Default
+    );
   };
 
-
   const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setCardPlacement(event.target.value as 'Front' | 'Back');
+    setCardPlacement(event.target.value as "Front" | "Back");
   };
 
   const handleSubmit = () => {
@@ -380,9 +406,7 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
           {/* Action area for displaying total price and action buttons */}
           <div className="lx-action-area z-10 flex justify-between items-center p-5 border-b bg-white absolute top-0 w-full">
             <span className="text-2xl font-bold text-primary rounded-lg">
-              {product && (
-                <div>AED {product.price}</div>
-              )}
+              {product && <div>AED {product.price}</div>}
             </span>
             <div className="lx-actions flex gap-2">
               <div className="flex items-center space-x-2">
@@ -414,9 +438,9 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
                 </a>
 
                 {/* Download Button (visible on screens 500px and wider) */}
-                <a
-                  href="#"
-                  className="relative lx-download-img flex rounded justify-center items-center aspect-square min-w-[40px] bg-gray-200 hover:bg-[#a77b3f] group hidden sm:flex"
+                <div
+                  onClick={() => handleSubmit}
+                  className="relative lx-download-img cursor-pointer rounded justify-center items-center aspect-square min-w-[40px] bg-gray-200 hover:bg-[#a77b3f] group hidden sm:flex"
                 >
                   <svg
                     className="w-6 h-6 text-gray-800 dark:text-gray-600 group-hover:text-white"
@@ -439,7 +463,7 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
                       Save Image
                     </div>
                   </div>
-                </a>
+                </div>
 
                 {/* More Options Button (visible on screens below 500px) */}
                 <div className="relative flex sm:hidden">
@@ -519,258 +543,256 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
           </div>
 
           {/* Card area for displaying the card */}
-          <div className="h-full min-h-[500px] flex items-center justify-center flex-col relative">
-            <div id="captureContainer" className="flex flex-col overflow-hidden md:flex-row items-center justify-center gap-8 mb-12 ">
+          <div className="h-full min-h-[700px] flex items-center justify-center flex-col relative">
+            <div
+              id="captureContainer"
+              className="flex flex-col overflow-hidden md:flex-row items-center justify-center gap-8 mb-12 "
+            >
               {loading ? (
                 <div>loading</div>
-              ) : (
-                isCardFlipped ? (
-                  <div className="relative">
-                    <Image
-                      src={cardBack}
-                      height={400}
-                      width={400}
-                      alt="Card Back Preview"
-                      className="w-full h-300 object-cover object-center shadow-lg border border-gray-300 rounded-lg"
-                    />
+              ) : isCardFlipped ? (
+                <div className="relative">
+                  <Image
+                    src={cardBack}
+                    height={800}
+                    width={800}
+                    alt="Card Back Preview"
+                    className="w-full h-800 object-cover object-center shadow-lg border border-gray-300 rounded-lg"
+                  />
 
-                    {cardPlacement === "Back" && (
-                      <div
-                        ref={targetRef3}
-                        onClick={() => handleTextClick('number')}
-                        style={{
-                          position: "absolute",
-                          left: 30,
-                          top: 200,
-                          width: elementValues.number.width,
-                          height: elementValues.number.height,
-                          transform: `rotate(${elementValues.number.rotate}deg)`,
-                          color: "white",
-                          padding: "8px",
-                          fontSize: "20px",
-                          borderRadius: "4px",
-                          cursor: "move",
-                        }}
-                      >
-                        {inputValues.number}
-                      </div>
-
-                    )}
-                  </div>
-                ) : (
-                  <div className="relative">
-                    <Image
-                      src={cardFront}
-                      height={400}
-                      width={400}
-                      alt="Card Front Preview"
-                      className="w-full h-300 object-cover object-center shadow-lg border border-gray-300 rounded-lg"
-                    />
-                    {displayBorder && (
-                      <div
-                        className="absolute top-0 left-0 w-full h-full pointer-events-none"
-                        style={{
-                          backgroundImage: `url(${displayBorder})`,
-                          backgroundSize: "cover",
-                          backgroundPosition: "center",
-                          borderRadius: "inherit",
-                        }}
-                      />
-                    )}
+                  {cardPlacement === "Back" && (
                     <div
-                      onClick={() => handleTextClick('image')}
-                      ref={imageRef}
+                      ref={targetRef3}
+                      onClick={() => handleTextClick("number")}
                       style={{
                         position: "absolute",
-                        left: elementValues.image.left,
-                        top: elementValues.image.top,
-                        width: elementValues.image.width,   // This will be dynamically set via scaling
-                        transform: `scale(${elementValues.image.scale}) rotate(${elementValues.image.rotate}deg)`,
-                        transformOrigin: "center center", // Ensures rotation is centered
-                        overflow: "hidden", // Prevents image from overflowing outside the container
+                        left: 30,
+                        top: 200,
+                        width: elementValues.number.width,
+                        height: elementValues.number.height,
+                        transform: `rotate(${elementValues.number.rotate}deg)`,
+                        color: "white",
+                        padding: "8px",
+                        fontSize: "20px",
+                        borderRadius: "4px",
+                        cursor: "move",
                       }}
                     >
-                      {image && (selectedLogo === "Upload own logo" || selectedLogo === "Upload own design") && (
+                      {inputValues.number}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="relative">
+                  <Image
+                    src={cardFront}
+                    height={800}
+                    width={800}
+                    alt="Card Front Preview"
+                    className="w-full h-800 object-cover object-center shadow-lg border border-gray-300 rounded-lg"
+                  />
+                  {displayBorder && (
+                    <div
+                      className="absolute top-0 left-0 w-full h-full pointer-events-none"
+                      style={{
+                        backgroundImage: `url(${displayBorder})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        borderRadius: "inherit",
+                      }}
+                    />
+                  )}
+                  <div
+                    onClick={() => handleTextClick("image")}
+                    ref={imageRef}
+                    style={{
+                      position: "absolute",
+                      left: elementValues.image.left,
+                      top: elementValues.image.top,
+                      width: elementValues.image.width, // This will be dynamically set via scaling
+                      transform: `scale(${elementValues.image.scale}) rotate(${elementValues.image.rotate}deg)`,
+                      transformOrigin: "center center", // Ensures rotation is centered
+                      overflow: "hidden", // Prevents image from overflowing outside the container
+                    }}
+                  >
+                    {image &&
+                      (selectedLogo === "Upload own logo" ||
+                        selectedLogo === "Upload own design") && (
                         <Image
                           src={image}
                           alt="Uploaded Preview"
-                          width={elementValues.image.width}  // You need to specify a fixed width for Next.js Image component
-                          height={elementValues.image.height}  // You need to specify a fixed height for Next.js Image component
+                          width={elementValues.image.width} // You need to specify a fixed width for Next.js Image component
+                          height={elementValues.image.height} // You need to specify a fixed height for Next.js Image component
                           style={{
                             objectFit: "contain", // Or "cover", depending on how you want to fit the image
                           }}
                         />
                       )}
-                    </div>
-
-
-                    {/* Draggable text on top of the image */}
-                    <div
-                      onClick={() => handleTextClick('name')}
-                      ref={targetRef1}
-                      style={{
-                        position: "absolute",
-                        left: elementValues.name.left,
-                        top: elementValues.name.top,
-                        height: elementValues.name.height * elementValues.name.scale, // Scale the height
-                        transform: `scale(${elementValues.name.scale}) rotate(${elementValues.name.rotate}deg)`,
-                        color: "white",
-                        padding: "8px",
-                        fontSize: `${20 * elementValues.name.scale}px`,
-                        borderRadius: "4px",
-                        cursor: "move",
-
-                      }}
-                    >
-                      {inputValues.name}
-                    </div>
-
-                    <div
-                      ref={targetRef2}
-                      onClick={() => handleTextClick('optional')}
-                      style={{
-                        position: "absolute",
-                        left: elementValues.optional.left,
-                        top: elementValues.optional.top,
-                        height: elementValues.optional.height * elementValues.optional.scale, // Scale the height
-                        transform: `scale(${elementValues.optional.scale}) rotate(${elementValues.optional.rotate}deg)`,
-                        color: "white",
-                        padding: "8px",
-                        fontSize: `${20 * elementValues.optional.scale}px`,
-                        borderRadius: "4px",
-                        cursor: "move",
-                      }}
-                    >
-                      {inputValues.optional}
-                    </div>
-
-
-                    {cardPlacement === "Front" && (
-                      <div
-                        ref={targetRef3}
-                        onClick={() => handleTextClick('number')}
-                        style={{
-                          position: "absolute",
-                          left: elementValues.number.left,
-                          top: elementValues.number.top,
-                          height: elementValues.number.height * elementValues.number.scale, // Scale the height
-                          transform: `scale(${elementValues.number.scale}) rotate(${elementValues.number.rotate}deg)`,
-                          color: "white",
-                          padding: "8px",
-                          fontSize: `${20 * elementValues.number.scale}px`,
-                          borderRadius: "4px",
-                          cursor: "move",
-                        }}
-                      >
-                        {inputValues.number}
-                      </div>
-
-                    )}
-
-
-                    <div
-                      onClick={() => handleTextClick('topnumber')}
-                      ref={targetRef4}
-                      style={{
-                        position: "absolute",
-                        left: elementValues.topnumber.left,
-                        top: elementValues.topnumber.top,
-                        height: elementValues.topnumber.height * elementValues.topnumber.scale, // Scale the height
-                        transform: `scale(${elementValues.topnumber.scale}) rotate(${elementValues.topnumber.rotate}deg)`,
-                        color: "white",
-                        padding: "8px",
-                        fontSize: `${20 * elementValues.topnumber.scale}px`,
-                        borderRadius: "4px",
-                        cursor: "move",
-                      }}
-                    >
-                      {inputValues.topnumber}
-                    </div>
-
-
-                    {/* Moveable components to handle drag, scale, and rotate interactions for each item */}
-                    {image && isVisibleImage && (
-                      <Moveable
-                        target={imageRef.current}
-                        draggable={true}
-                        scalable={true}
-                        keepRatio={true}
-                        rotatable={true}
-                        onDrag={(e) => handleDrag(e, "image")}
-                        onScale={(e) => handleScale(e, "image")}
-                        onRotate={(e) => handleRotate(e, "image")}
-                        visible={isDragging.image} // Only visible when it's being dragged
-                      />
-                    )}
-
-
-                    {/* Conditionally render Moveable based on visibility */}
-                    {isVisibleName && (
-                      <Moveable
-                        target={targetRef1.current}
-                        draggable={true}
-                        scalable={true}
-                        keepRatio={true}
-                        rotatable={true}
-                        onDragStart={() => handleDragStart("name")}
-                        onDrag={(e) => handleDrag(e, "name")}
-                        onScale={(e) => handleScale(e, "name")}
-                        onRotate={(e) => handleRotate(e, "name")}
-                        visible={isDragging.name} // Only visible when it's being dragged
-                      />
-                    )}
-                    {isVisibleOptional && (
-
-                      <Moveable
-                        target={targetRef2.current}
-                        draggable={true}
-                        scalable={true}
-                        keepRatio={true}
-                        rotatable={true}
-                        onDragStart={() => handleDragStart("optional")}
-                        onDragEnd={() => handleDragEnd("optional")}
-                        onDrag={(e) => handleDrag(e, "optional")}
-                        onScale={(e) => handleScale(e, "optional")}
-                        onRotate={(e) => handleRotate(e, "optional")}
-                        visible={isDragging.optional}
-                      />
-                    )}
-                    {isVisibleNumber && (
-
-                      <Moveable
-                        target={targetRef3.current}
-                        draggable={true}
-                        scalable={true}
-                        keepRatio={true}
-                        rotatable={true}
-                        onDragStart={() => handleDragStart("number")}
-                        onDragEnd={() => handleDragEnd("number")}
-                        onDrag={(e) => handleDrag(e, "number")}
-                        onScale={(e) => handleScale(e, "number")}
-                        onRotate={(e) => handleRotate(e, "number")}
-                        visible={isDragging.number}
-                      />
-
-                    )}
-
-                    {isVisibleTopNumber && (
-                      <Moveable
-                        target={targetRef4.current}
-                        draggable={true}
-                        scalable={true}
-                        keepRatio={true}
-                        rotatable={true}
-                        onDragStart={() => handleDragStart("topnumber")}
-                        onDragEnd={() => handleDragEnd("topnumber")}
-                        onDrag={(e) => handleDrag(e, "topnumber")}
-                        onScale={(e) => handleScale(e, "topnumber")}
-                        onRotate={(e) => handleRotate(e, "topnumber")}
-                        visible={isDragging.topnumber} // Only visible when it's being dragged
-                      />
-                    )}
-
                   </div>
-                )
+
+                  {/* Draggable text on top of the image */}
+                  <div
+                    onClick={() => handleTextClick("name")}
+                    ref={targetRef1}
+                    style={{
+                      position: "absolute",
+                      left: elementValues.name.left,
+                      top: elementValues.name.top,
+                      height:
+                        elementValues.name.height * elementValues.name.scale, // Scale the height
+                      transform: `scale(${elementValues.name.scale}) rotate(${elementValues.name.rotate}deg)`,
+                      color: "white",
+                      padding: "8px",
+                      fontSize: `${20 * elementValues.name.scale}px`,
+                      borderRadius: "4px",
+                      cursor: "move",
+                    }}
+                  >
+                    {inputValues.name}
+                  </div>
+
+                  <div
+                    ref={targetRef2}
+                    onClick={() => handleTextClick("optional")}
+                    style={{
+                      position: "absolute",
+                      left: elementValues.optional.left,
+                      top: elementValues.optional.top,
+                      height:
+                        elementValues.optional.height *
+                        elementValues.optional.scale, // Scale the height
+                      transform: `scale(${elementValues.optional.scale}) rotate(${elementValues.optional.rotate}deg)`,
+                      color: "white",
+                      padding: "8px",
+                      fontSize: `${20 * elementValues.optional.scale}px`,
+                      borderRadius: "4px",
+                      cursor: "move",
+                    }}
+                  >
+                    {inputValues.optional}
+                  </div>
+
+                  {cardPlacement === "Front" && (
+                    <div
+                      ref={targetRef3}
+                      onClick={() => handleTextClick("number")}
+                      style={{
+                        position: "absolute",
+                        left: elementValues.number.left,
+                        top: elementValues.number.top,
+                        height:
+                          elementValues.number.height *
+                          elementValues.number.scale, // Scale the height
+                        transform: `scale(${elementValues.number.scale}) rotate(${elementValues.number.rotate}deg)`,
+                        color: "white",
+                        padding: "8px",
+                        fontSize: `${20 * elementValues.number.scale}px`,
+                        borderRadius: "4px",
+                        cursor: "move",
+                      }}
+                    >
+                      {inputValues.number}
+                    </div>
+                  )}
+
+                  <div
+                    onClick={() => handleTextClick("topnumber")}
+                    ref={targetRef4}
+                    style={{
+                      position: "absolute",
+                      left: elementValues.topnumber.left,
+                      top: elementValues.topnumber.top,
+                      height:
+                        elementValues.topnumber.height *
+                        elementValues.topnumber.scale, // Scale the height
+                      transform: `scale(${elementValues.topnumber.scale}) rotate(${elementValues.topnumber.rotate}deg)`,
+                      color: "white",
+                      padding: "8px",
+                      fontSize: `${20 * elementValues.topnumber.scale}px`,
+                      borderRadius: "4px",
+                      cursor: "move",
+                    }}
+                  >
+                    {inputValues.topnumber}
+                  </div>
+
+                  {/* Moveable components to handle drag, scale, and rotate interactions for each item */}
+                  {image && isVisibleImage && (
+                    <Moveable
+                      target={imageRef.current}
+                      draggable={true}
+                      scalable={true}
+                      keepRatio={true}
+                      rotatable={true}
+                      onDrag={(e) => handleDrag(e, "image")}
+                      onScale={(e) => handleScale(e, "image")}
+                      onRotate={(e) => handleRotate(e, "image")}
+                      visible={isDragging.image} // Only visible when it's being dragged
+                    />
+                  )}
+
+                  {/* Conditionally render Moveable based on visibility */}
+                  {isVisibleName && (
+                    <Moveable
+                      target={targetRef1.current}
+                      draggable={true}
+                      scalable={true}
+                      keepRatio={true}
+                      rotatable={true}
+                      onDragStart={() => handleDragStart("name")}
+                      onDrag={(e) => handleDrag(e, "name")}
+                      onScale={(e) => handleScale(e, "name")}
+                      onRotate={(e) => handleRotate(e, "name")}
+                      visible={isDragging.name} // Only visible when it's being dragged
+                    />
+                  )}
+                  {isVisibleOptional && (
+                    <Moveable
+                      target={targetRef2.current}
+                      draggable={true}
+                      scalable={true}
+                      keepRatio={true}
+                      rotatable={true}
+                      onDragStart={() => handleDragStart("optional")}
+                      onDragEnd={() => handleDragEnd("optional")}
+                      onDrag={(e) => handleDrag(e, "optional")}
+                      onScale={(e) => handleScale(e, "optional")}
+                      onRotate={(e) => handleRotate(e, "optional")}
+                      visible={isDragging.optional}
+                    />
+                  )}
+                  {isVisibleNumber && (
+                    <Moveable
+                      target={targetRef3.current}
+                      draggable={true}
+                      scalable={true}
+                      keepRatio={true}
+                      rotatable={true}
+                      onDragStart={() => handleDragStart("number")}
+                      onDragEnd={() => handleDragEnd("number")}
+                      onDrag={(e) => handleDrag(e, "number")}
+                      onScale={(e) => handleScale(e, "number")}
+                      onRotate={(e) => handleRotate(e, "number")}
+                      visible={isDragging.number}
+                    />
+                  )}
+
+                  {isVisibleTopNumber && (
+                    <Moveable
+                      target={targetRef4.current}
+                      draggable={true}
+                      scalable={true}
+                      keepRatio={true}
+                      rotatable={true}
+                      onDragStart={() => handleDragStart("topnumber")}
+                      onDragEnd={() => handleDragEnd("topnumber")}
+                      onDrag={(e) => handleDrag(e, "topnumber")}
+                      onScale={(e) => handleScale(e, "topnumber")}
+                      onRotate={(e) => handleRotate(e, "topnumber")}
+                      visible={isDragging.topnumber} // Only visible when it's being dragged
+                    />
+                  )}
+                </div>
               )}
             </div>
 
@@ -779,13 +801,13 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
               onClick={toggleCard}
               className="bg-primary text-white border border-primary rounded-full py-[13px] px-[32px] font-regular uppercase hover:bg-[#f0dac6] hover:border-[#f0dac6] hover:text-[#343434] absolute bottom-8"
             >
-              Switch Front
+              Switch Sides
             </button>
           </div>
         </div>
 
         {/* Right Section */}
-        <div className="w-full md:w-1/3 bg-white p-6 shadow-lg rounded-lg overflow-y-auto">
+        <div className="w-full md:w-1/4 bg-white p-6 shadow-lg rounded-lg overflow-y-auto">
           <h1 className="text-2xl font-bold text-gray-800 mb-4">Custom Card</h1>
 
           {/* Large device customization options */}
@@ -798,7 +820,6 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
                 >
                   Choose Variant
                 </label>
-
 
                 {/* <select
                   id="variation-select"
@@ -817,54 +838,69 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
                 </select> */}
 
                 <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2">
-                  {allVariations ? (
-                    allVariations.map((variation) => (
-                      <div
-                        key={variation.id}
-                        className={`bg-white p-3 rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer ${selectedVariationId === variation.id ? "border-2 border-primary box-border" : ""}`}
-                        onClick={() => handleVariationChange(variation.id)} // Set the selected item
-                        style={{ boxSizing: "border-box" }} // Ensure border is inside the box sizing
-                      >
-
-                        <div className="relative w-full h-20 mb-1">
-                          <Image
-                            src={variation.images[0].src}
-                            alt={variation.name}
-                            layout="fill"
-                            objectFit="cover"
-                            className="rounded-md"
+                  {allVariations
+                    ? allVariations.map((variation) => (
+                        <div
+                          key={variation.id}
+                          className={`bg-white p-3 rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer ${
+                            selectedVariationId === variation.id
+                              ? "border-2 border-primary box-border"
+                              : ""
+                          }`}
+                          onClick={() => handleVariationChange(variation.id)} // Set the selected item
+                          style={{ boxSizing: "border-box" }} // Ensure border is inside the box sizing
+                        >
+                          <div className="relative w-full h-20 mb-1">
+                            <Image
+                              src={variation.images[0].src}
+                              alt={variation.name}
+                              layout="fill"
+                              objectFit="cover"
+                              className="rounded-md"
+                            />
+                          </div>
+                          <h3 className="text-center font-semibold text-[13px] text-gray-800">
+                            {variation.name.split("-")[1]}
+                          </h3>
+                        </div>
+                      ))
+                    : // Skeleton loader when `allVariations` is not yet available
+                      Array.from({ length: 8 }).map((_, index) => (
+                        <div
+                          key={index}
+                          className="bg-white p-2 rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                        >
+                          <div className="relative w-full h-20 mb-1">
+                            <LoadingSkeleton
+                              width="100%"
+                              height="100%"
+                              variant="rectangular"
+                            />
+                          </div>
+                          <LoadingSkeleton
+                            width="60%"
+                            height={20}
+                            className="mx-auto mt-2"
                           />
                         </div>
-                        <h3 className="text-center font-semibold text-[13px] text-gray-800">
-                          {variation.name.split('-')[1]}
-                        </h3>
-                      </div>
-                    ))
-                  ) : (
-                    // Skeleton loader when `allVariations` is not yet available
-                    Array.from({ length: 8 }).map((_, index) => (
-                      <div key={index} className="bg-white p-2 rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
-                        <div className="relative w-full h-20 mb-1">
-                          <LoadingSkeleton width="100%" height="100%" variant="rectangular" />
-                        </div>
-                        <LoadingSkeleton width="60%" height={20} className="mx-auto mt-2" />
-                      </div>
-                    ))
-                  )}
+                      ))}
                 </div>
-
               </div>
 
               {/* Input for Your Name */}
               <div className="mb-6">
                 <label className="block text-gray-800 font-semibold mb-1">
-                  {getFieldByElementId("text_1044961101", 'label', "Your Name")}
+                  {getFieldByElementId("text_1044961101", "label", "Your Name")}
                 </label>
                 <input
-                  type={getFieldByElementId("text_1044961101", 'type', "Text")}
+                  type={getFieldByElementId("text_1044961101", "type", "Text")}
                   name="name"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AE9164] focus:border-[#AE9164] placeholder-gray-400"
-                  placeholder={getFieldByElementId("text_1044961101", 'placeholder', "Text")}
+                  placeholder={getFieldByElementId(
+                    "text_1044961101",
+                    "placeholder",
+                    "Text"
+                  )}
                   value={inputValues.name}
                   onChange={handleInputChange}
                 />
@@ -873,7 +909,11 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
               {/* Input for Optional Text */}
               <div className="mb-6">
                 <label className="block text-gray-800 font-semibold mb-1">
-                  {getFieldByElementId("text-0672336657", 'label', "Optional Text")}
+                  {getFieldByElementId(
+                    "text-0672336657",
+                    "label",
+                    "Optional Text"
+                  )}
                 </label>
                 {/* <input
                   type="text"
@@ -881,26 +921,41 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
                 /> */}
 
                 <input
-                  type={getFieldByElementId("text-0672336657", 'type', "Text")}
+                  type={getFieldByElementId("text-0672336657", "type", "Text")}
                   name="optional"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AE9164] focus:border-[#AE9164] placeholder-gray-400"
-                  placeholder={getFieldByElementId("text-0672336657", 'placeholder', "Optional Text")}
+                  placeholder={getFieldByElementId(
+                    "text-0672336657",
+                    "placeholder",
+                    "Optional Text"
+                  )}
                   value={inputValues.optional}
                   onChange={handleInputChange}
                 />
-
               </div>
 
               {/* Input for Card Number (Optional) */}
               <div className="mb-6">
                 <label className="block text-gray-800 font-semibold mb-1">
-                  {getFieldByElementId("number_1044996642", 'label', "Card Number (Optional)")}
+                  {getFieldByElementId(
+                    "number_1044996642",
+                    "label",
+                    "Card Number (Optional)"
+                  )}
                 </label>
                 <input
-                  type={getFieldByElementId("number_1044996642", 'text', "text")}
+                  type={getFieldByElementId(
+                    "number_1044996642",
+                    "text",
+                    "text"
+                  )}
                   name="number"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#AE9164] focus:border-[#AE9164] placeholder-gray-400"
-                  placeholder={getFieldByElementId("number_1044996642", 'placeholder', "Card Number")}
+                  placeholder={getFieldByElementId(
+                    "number_1044996642",
+                    "placeholder",
+                    "Card Number"
+                  )}
                   value={inputValues.number}
                   onChange={handleInputChange}
                 />
@@ -909,32 +964,42 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
               {/* Card Number Placement (Front or Back) */}
               <div className="mb-6">
                 <label className="block text-gray-800 font-semibold mb-4">
-                  {getFieldByElementId("radio_7208132280", 'label', "Card Number Placement")}
+                  {getFieldByElementId(
+                    "radio_7208132280",
+                    "label",
+                    "Card Number Placement"
+                  )}
                 </label>
-                {cardPlacementFields && cardPlacementFields.map((field) => (
-                  <div key={field.label} className="flex items-center mb-4">
-                    <input
-                      type="radio"
-                      id={field.label}
-                      name="card-placement" // ensure the same name for grouping
-                      value={field.value}
-                      className="mr-2 focus:ring-[#AE9164] text-[#b88c4f]"
-                      checked={cardPlacement === field.value} // set checked based on cardPlacement
-                      onChange={handleRadioChange}
-                    />
-                    <label htmlFor={field.label} className="text-gray-800 m-0">
-                      {field.label}
-                    </label>
-                  </div>
-                ))}
-
-
+                {cardPlacementFields &&
+                  cardPlacementFields.map((field) => (
+                    <div key={field.label} className="flex items-center mb-4">
+                      <input
+                        type="radio"
+                        id={field.label}
+                        name="card-placement" // ensure the same name for grouping
+                        value={field.value}
+                        className="mr-2 focus:ring-[#AE9164] text-[#b88c4f]"
+                        checked={cardPlacement === field.value} // set checked based on cardPlacement
+                        onChange={handleRadioChange}
+                      />
+                      <label
+                        htmlFor={field.label}
+                        className="text-gray-800 m-0"
+                      >
+                        {field.label}
+                      </label>
+                    </div>
+                  ))}
               </div>
 
               {/* Input for Text on Top of Card (Optional) */}
               <div className="mb-6">
                 <label className="block text-gray-800 font-semibold mb-1">
-                  {getFieldByElementId("radio_72081d32280", 'label', "Text on top of card (optional)")}
+                  {getFieldByElementId(
+                    "radio_72081d32280",
+                    "label",
+                    "Text on top of card (optional)"
+                  )}
                 </label>
                 <input
                   type="text"
@@ -952,7 +1017,11 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
                   htmlFor="add-borders"
                   className="block text-gray-800 font-semibold mb-4 pb-3 border-b border-gray-300"
                 >
-                  {getFieldByElementId("image_2833661161", 'label', "Add Borders")}
+                  {getFieldByElementId(
+                    "image_2833661161",
+                    "label",
+                    "Add Borders"
+                  )}
                 </label>
                 <div className="lx-colors grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-2 mt-4">
                   {borders.map((border) => (
@@ -960,7 +1029,11 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
                       onClick={() => addBorder(border.label)}
                       key={border.label}
                       className={`aspect-square bg-gray-100 rounded-md p-4 pt-0 transition duration-300 cursor-pointer logo-option border-2 
-                        ${selectedBorderId === border.label ? 'border-[#AE9164]' : 'border-transparent'} hover:border-[#AE9164]`}
+                        ${
+                          selectedBorderId === border.label
+                            ? "border-[#AE9164]"
+                            : "border-transparent"
+                        } hover:border-[#AE9164]`}
                     >
                       <Image
                         src={border.image}
@@ -986,116 +1059,88 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
                   htmlFor="choose-logo"
                   className="block text-gray-800 font-semibold mb-4 pb-3 border-b border-gray-300"
                 >
-                  {getFieldByElementId("radio_2580742084", 'label', "Choose Logo")}
+                  {getFieldByElementId(
+                    "radio_2580742084",
+                    "label",
+                    "Choose Logo"
+                  )}
                 </label>
-                <div className="lx-colors grid grid-cols-1 gap-2">
-
-                  {logoFields && logoFields.map((logo) => (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-7 ">
+                  {" "}
+                  {logoFields&&logoFields.map((logo) => (
                     <label
                       key={logo.label}
                       htmlFor={logo.label}
-                      className={`flex items-center justify-between p-4 mb-2 border rounded-lg cursor-pointer transition-all duration-200 
-                ${selectedLogo === logo.value ? 'bg-gray-200 border-primary' : 'border-gray-300 hover:bg-gray-100'}`}
+                      className={`flex flex-col items-center justify-center py-4  border rounded-lg cursor-pointer transition-all duration-200 ${
+                        selectedLogo === logo.value
+                          ? "bg-gray-200 border-primary"
+                          : "border-gray-300 hover:bg-gray-100"
+                      }`}
                     >
-                      <div className="flex items-center">
-                        <input
-                          type="radio"
-                          id={logo.label}
-                          name="logoSelection"
-                          value={logo.value}
-                          checked={selectedLogo === logo.value}
-                          onChange={() => {
-                            setSelectedLogo(logo.value);
-                            console.log(logo.value);
-                          }}
-                          className="mr-3 h-5 w-5 text-primary focus:ring-2 focus:ring-primary"
-                        />
-                        <span className="text-gray-800 font-medium">{logo.label}</span>
-                      </div>
-                      <span className="text-white bg-black font-semibold border px-4 w-[70px] flex justify-center rounded-full">+{logo.price}</span>
+                      <input
+                        type="radio"
+                        id={logo.label}
+                        name="logoSelection"
+                        value={logo.value}
+                        checked={selectedLogo === logo.value}
+                        onChange={() => {
+                          setSelectedLogo(logo.value);
+                          console.log(logo.value);
+                        }}
+                        className="mb-2 h-5 w-5 text-primary focus:ring-2 focus:ring-primary"
+                      />{" "}
+                      <span className="text-gray-800 font-medium mb-2">
+                        {logo.label}
+                      </span>{" "}
+                      <span className="text-white bg-primary font-semibold border py-1 px-7 text-center rounded-full">
+                        +{logo.price}
+                      </span>{" "}
                     </label>
-                  ))}
-
-                  
-
-
-
-                  {/* Logo Options */}
-                  {/* <div
-                    className="aspect-square bg-gray-100 rounded-md p-4 pt-0 transition duration-300 cursor-pointer logo-option border-transparent border-2 hover:border-[#AE9164]"
-                    onClick={() => setCustomLogo(false)}>
-                    <Image
-                      src="/assets/img/no-logo.png"
-                      alt="Brushed Black Logo"
-                      height={20}
-                      width={20}
-                      className="w-full h-full object-contain rounded-md lx-card-logo"
-                    />
-                    <p className="text-center text-sm text-gray-600 truncate">
-                      None
-                    </p>
-                  </div> */}
-
-                  {/* <div
-                    className="logo-option bg-gray-100 lx-card-logo cursor-pointer p-4 pt-0 rounded-lg flex-1 text-center transition duration-200 border-transparent border-2 hover:border-[#AE9164] relative"
-                    onClick={() => setCustomLogo(true)}
-                  >
-                    <Image
-                      src="/assets/img/custom-logo.png"
-                      height={20}
-                      width={20}
-                      alt="Brushed Black Logo"
-                      className="w-full object-contain rounded-md lx-card-logo"
-                    />
-                    <p className="text-center w-min px-2 mx-auto py-1 bg-black rounded-full text-white text-xs font-semibold text-nowrap">
-                      AED 5
-                    </p>
-                    <p className="mt-4 text-center text-sm text-gray-600">
-                      Custom Logo
-                    </p>
-                  </div> */}
-
-
+                  ))}{" "}
                 </div>
-                {selectedLogo && (selectedLogo === "Upload own logo" || selectedLogo === "Upload own design") && (
-                  <div>
-                    {/* File input */}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      style={{ marginBottom: "20px" }}
-                    />
+                {selectedLogo &&
+                  (selectedLogo === "Upload own logo" ||
+                    selectedLogo === "Upload own design") && (
+                    <div>
+                      {/* File input */}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        style={{ marginBottom: "20px" }}
+                      />
 
-                    {/* Display image preview if available */}
-                    {image ? (
-                      <div>
-                        <h3>Selected Image:</h3>
-                        <Image
-                          src={image}
-                          height={350}
-                          width={350}
-                          alt="Preview"
-                          style={{
-                            maxWidth: "100%",
-                            maxHeight: "400px",
-                            objectFit: "contain",
-                            border: "1px solid #ddd",
-                            borderRadius: "8px",
-                            marginBottom: "20px",
-                          }}
-                        />
-                      </div>
-                    ) : (
-                      <p>No image selected yet.</p>
-                    )}
-                  </div>
-
-                )}
+                      {/* Display image preview if available */}
+                      {image ? (
+                        <div>
+                          <h3>Selected Image:</h3>
+                          <Image
+                            src={image}
+                            height={350}
+                            width={350}
+                            alt="Preview"
+                            style={{
+                              maxWidth: "100%",
+                              maxHeight: "400px",
+                              objectFit: "contain",
+                              border: "1px solid #ddd",
+                              borderRadius: "8px",
+                              marginBottom: "20px",
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        <p>No image selected yet.</p>
+                      )}
+                    </div>
+                  )}
               </div>
 
               {/* Add to Cart Button */}
-              <button className="w-full bg-[#AE9164] py-3 rounded-full text-white text-lg font-bold hover:bg-[#9d7c47] transition duration-200 mt-4" onClick={handleSubmit}>
+              <button
+                className="w-full bg-[#AE9164] py-3 rounded-full text-white text-lg font-bold hover:bg-[#9d7c47] transition duration-200 mt-4"
+                onClick={handleSubmit}
+              >
                 Add to Cart
               </button>
             </div>
@@ -1109,13 +1154,17 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
               <div className="mb-6 mt-6">
                 <div className="flex justify-between">
                   <button
-                    onClick={() => setCurrentStep(currentStep > 1 ? currentStep - 1 : 1)}
+                    onClick={() =>
+                      setCurrentStep(currentStep > 1 ? currentStep - 1 : 1)
+                    }
                     className="bg-gray-200 px-4 py-2 rounded-full text-sm"
                   >
                     Previous
                   </button>
                   <button
-                    onClick={() => setCurrentStep(currentStep < 4 ? currentStep + 1 : 4)}
+                    onClick={() =>
+                      setCurrentStep(currentStep < 4 ? currentStep + 1 : 4)
+                    }
                     className="bg-gray-200 px-4 py-2 rounded-full text-sm"
                   >
                     Next
@@ -1126,41 +1175,58 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
               {/* Step 1: Choose Color */}
               {currentStep === 1 && (
                 <div>
-                  <label htmlFor="add-borders" className="block pb-3 border-b border-gray-300 text-gray-800 font-semibold mb-2">
+                  <label
+                    htmlFor="add-borders"
+                    className="block pb-3 border-b border-gray-300 text-gray-800 font-semibold mb-2"
+                  >
                     Choose Color
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2">
-                    {allVariations ? (
-                      allVariations.map((variation) => (
-                        <div
-                          key={variation.id}
-                          className={`bg-white p-3 rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer ${selectedVariationId === variation.id ? "border-2 border-primary box-border" : ""
+                    {allVariations
+                      ? allVariations.map((variation) => (
+                          <div
+                            key={variation.id}
+                            className={`bg-white p-3 rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer ${
+                              selectedVariationId === variation.id
+                                ? "border-2 border-primary box-border"
+                                : ""
                             }`}
-                          onClick={() => handleVariationChange(variation.id)}
-                          style={{ boxSizing: "border-box" }}
-                        >
-                          <div className="relative w-full h-20 mb-1">
-                            <Image
-                              src={variation.images[0].src}
-                              alt={variation.name}
-                              layout="fill"
-                              objectFit="cover"
-                              className="rounded-md"
+                            onClick={() => handleVariationChange(variation.id)}
+                            style={{ boxSizing: "border-box" }}
+                          >
+                            <div className="relative w-full h-20 mb-1">
+                              <Image
+                                src={variation.images[0].src}
+                                alt={variation.name}
+                                layout="fill"
+                                objectFit="cover"
+                                className="rounded-md"
+                              />
+                            </div>
+                            <h3 className="text-center font-semibold text-[13px] text-gray-800">
+                              {variation.name.split("-")[1]}
+                            </h3>
+                          </div>
+                        ))
+                      : Array.from({ length: 8 }).map((_, index) => (
+                          <div
+                            key={index}
+                            className="bg-white p-2 rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer"
+                          >
+                            <div className="relative w-full h-20 mb-1">
+                              <LoadingSkeleton
+                                width="100%"
+                                height="100%"
+                                variant="rectangular"
+                              />
+                            </div>
+                            <LoadingSkeleton
+                              width="60%"
+                              height={20}
+                              className="mx-auto mt-2"
                             />
                           </div>
-                          <h3 className="text-center font-semibold text-[13px] text-gray-800">{variation.name.split("-")[1]}</h3>
-                        </div>
-                      ))
-                    ) : (
-                      Array.from({ length: 8 }).map((_, index) => (
-                        <div key={index} className="bg-white p-2 rounded-lg shadow-lg hover:shadow-xl transition-shadow cursor-pointer">
-                          <div className="relative w-full h-20 mb-1">
-                            <LoadingSkeleton width="100%" height="100%" variant="rectangular" />
-                          </div>
-                          <LoadingSkeleton width="60%" height={20} className="mx-auto mt-2" />
-                        </div>
-                      ))
-                    )}
+                        ))}
                   </div>
                 </div>
               )}
@@ -1168,7 +1234,9 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
               {/* Step 2: Your Name */}
               {currentStep === 2 && (
                 <div>
-                  <label className="block text-gray-800 font-semibold mb-1">Your Name</label>
+                  <label className="block text-gray-800 font-semibold mb-1">
+                    Your Name
+                  </label>
                   <input
                     type="text"
                     name="name"
@@ -1183,7 +1251,9 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
               {/* Step 3: Card Number Placement */}
               {currentStep === 3 && (
                 <div>
-                  <label className="block text-gray-800 font-semibold mb-4">Card number placement</label>
+                  <label className="block text-gray-800 font-semibold mb-4">
+                    Card number placement
+                  </label>
                   <div className="flex items-center mb-4">
                     <input
                       type="radio"
@@ -1212,7 +1282,9 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
                       Back (+10)
                     </label>
                     {cardPlacement === "Back" && (
-                      <span className="ml-2 bg-black text-white text-sm font-bold px-2 py-1 rounded-full">$10.00</span>
+                      <span className="ml-2 bg-black text-white text-sm font-bold px-2 py-1 rounded-full">
+                        $10.00
+                      </span>
                     )}
                   </div>
                 </div>
@@ -1221,27 +1293,56 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
               {/* Step 4: Choose Logo */}
               {currentStep === 4 && (
                 <div>
-                  <label htmlFor="choose-logo" className="block text-gray-800 font-semibold mb-4 pb-3 border-b border-gray-300">
+                  <label
+                    htmlFor="choose-logo"
+                    className="block text-gray-800 font-semibold mb-4 pb-3 border-b border-gray-300"
+                  >
                     Choose Logo
                   </label>
                   <div className="lx-colors grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-2">
-                    <div className="aspect-square bg-gray-100 rounded-md p-4 pt-0 transition duration-300 cursor-pointer logo-option border-transparent border-2 hover:border-[#AE9164]" onClick={() => setCustomLogo(false)}>
-                      <Image src="/assets/img/no-logo.png" alt="Brushed Black Logo" height={20} width={20} className="w-full h-full object-contain rounded-md lx-card-logo" />
-                      <p className="text-center text-sm text-gray-600 truncate">None</p>
+                    <div
+                      className="aspect-square bg-gray-100 rounded-md p-4 pt-0 transition duration-300 cursor-pointer logo-option border-transparent border-2 hover:border-[#AE9164]"
+                      onClick={() => setCustomLogo(false)}
+                    >
+                      <Image
+                        src="/assets/img/no-logo.png"
+                        alt="Brushed Black Logo"
+                        height={20}
+                        width={20}
+                        className="w-full h-full object-contain rounded-md lx-card-logo"
+                      />
+                      <p className="text-center text-sm text-gray-600 truncate">
+                        None
+                      </p>
                     </div>
 
                     <div
                       className="logo-option bg-gray-100 lx-card-logo cursor-pointer p-4 pt-0 rounded-lg flex-1 text-center transition duration-200 border-transparent border-2 hover:border-[#AE9164] relative"
                       onClick={() => setCustomLogo(true)}
                     >
-                      <Image src="/assets/img/custom-logo.png" height={20} width={20} alt="Brushed Black Logo" className="w-full object-contain rounded-md lx-card-logo" />
-                      <p className="text-center w-min px-2 mx-auto py-1 bg-black rounded-full text-white text-xs font-semibold text-nowrap">AED 5</p>
-                      <p className="mt-4 text-center text-sm text-gray-600">Custom Logo</p>
+                      <Image
+                        src="/assets/img/custom-logo.png"
+                        height={20}
+                        width={20}
+                        alt="Brushed Black Logo"
+                        className="w-full object-contain rounded-md lx-card-logo"
+                      />
+                      <p className="text-center w-min px-2 mx-auto py-1 bg-black rounded-full text-white text-xs font-semibold text-nowrap">
+                        AED 5
+                      </p>
+                      <p className="mt-4 text-center text-sm text-gray-600">
+                        Custom Logo
+                      </p>
                     </div>
                   </div>
                   {customLogo && (
                     <div>
-                      <input type="file" accept="image/*" onChange={handleFileChange} style={{ marginBottom: "20px" }} />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        style={{ marginBottom: "20px" }}
+                      />
                       {image ? (
                         <div>
                           <h3>Selected Image:</h3>
@@ -1274,14 +1375,11 @@ const CustomizationSection: React.FC<CustomizationSectionProps> = ({ hostName, s
                   </button>
                 </div>
               )}
-
-
-
             </div>
           </div>
         </div>
       </div>
-    </section >
+    </section>
   );
 };
 
